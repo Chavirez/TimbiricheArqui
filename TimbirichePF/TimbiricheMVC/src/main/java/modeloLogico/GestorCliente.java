@@ -19,12 +19,13 @@ import controlador.TableroControlador;
 import interfaces.ITuberiaEntrada;
 import interfaces.ITuberiaSalida;
 
+
 /**
  * El cerebro del cliente.
  */
 public class GestorCliente implements IServicioJuego, ITuberiaEntrada, IClienteJuego {
 
-    //private IProcesadorDeEnvio procesadorEnvio;
+
     private ITuberiaSalida envio;
     private TableroModelo modelo;
     private LogicaCliente logica;
@@ -76,23 +77,6 @@ public class GestorCliente implements IServicioJuego, ITuberiaEntrada, IClienteJ
         envio.enviarDato(new AccionIniciarPartida());
     }
 
-    @Override
-    public void alRecibirDato(Object dato) {
-        SwingUtilities.invokeLater(() -> {
-            switch (dato) {
-                case EventoEstadoActualizado e ->
-                    onEstadoPartidaActualizado(e.getNuevoEstado());
-                case RespuestaUnionExitosa r ->
-                    onUnionExitosa(r.getEstadoInicial());
-                case EventoPartidaIniciada e ->
-                    onPartidaIniciada();
-                case EventoError e ->
-                    onMostrarError(e.getMensaje());
-                default ->
-                    System.err.println("DTO desconocido recibido: " + dato.getClass().getName());
-            }
-        });
-    }
 
     @Override
     public void onUnionExitosa(EstadoPartidaDTO estadoInicial) {
@@ -199,5 +183,23 @@ public class GestorCliente implements IServicioJuego, ITuberiaEntrada, IClienteJ
                 : (ventanaJuego != null) ? ventanaJuego : ventanaLobby;
 
         JOptionPane.showMessageDialog(ventanaActiva, mensaje, "Error del Servidor", JOptionPane.ERROR_MESSAGE);
+    }
+
+    @Override
+    public void alRecibirDato(Object dato) {
+        SwingUtilities.invokeLater(() -> {
+            switch (dato) {
+                case EventoEstadoActualizado e ->
+                    onEstadoPartidaActualizado(e.getNuevoEstado());
+                case RespuestaUnionExitosa r ->
+                    onUnionExitosa(r.getEstadoInicial());
+                case EventoPartidaIniciada e ->
+                    onPartidaIniciada();
+                case EventoError e ->
+                    onMostrarError(e.getMensaje());
+                default ->
+                    System.err.println("DTO desconocido recibido: " + dato.getClass().getName());
+            }
+        });
     }
 }
