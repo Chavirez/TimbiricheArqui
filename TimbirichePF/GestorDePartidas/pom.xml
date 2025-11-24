@@ -41,6 +41,6 @@
         </dependency>
     </dependencies>
     <properties>
-        <exec.mainClass>itson.gestordepartidas.GestorDePartidas</exec.mainClass>
+        <exec.mainClass>gestor.GestorPrincipal</exec.mainClass>
     </properties>
 </project>

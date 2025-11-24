@@ -29,6 +29,6 @@
         </dependency>
     </dependencies>
     <properties>
-        <exec.mainClass>itson.ensambladorapp.EnsambladorApp</exec.mainClass>
+        <exec.mainClass>ensamblador.EnsambladorPrincipal</exec.mainClass>
     </properties>
 </project>
