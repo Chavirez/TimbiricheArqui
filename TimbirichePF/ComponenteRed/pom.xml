@@ -8,6 +8,14 @@
     </parent>
     <artifactId>ComponenteRed</artifactId>
     <packaging>jar</packaging>
+    <dependencies>
+        <dependency>
+            <groupId>ITSON</groupId>
+            <artifactId>InterfacesEmision</artifactId>
+            <version>1.0-SNAPSHOT</version>
+            <type>jar</type>
+        </dependency>
+    </dependencies>
     <properties>
         <exec.mainClass>itson.componentered.ComponenteRed</exec.mainClass>
     </properties>
