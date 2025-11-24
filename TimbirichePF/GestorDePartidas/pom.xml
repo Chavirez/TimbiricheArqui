@@ -8,6 +8,14 @@
     </parent>
     <artifactId>GestorDePartidas</artifactId>
     <packaging>jar</packaging>
+    <dependencies>
+        <dependency>
+            <groupId>ITSON</groupId>
+            <artifactId>ComponenteDominio</artifactId>
+            <version>1.0-SNAPSHOT</version>
+            <type>jar</type>
+        </dependency>
+    </dependencies>
     <properties>
         <exec.mainClass>itson.gestordepartidas.GestorDePartidas</exec.mainClass>
     </properties>
