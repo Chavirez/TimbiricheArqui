@@ -3,6 +3,7 @@ package emisor;
 
 import interfaces.IDispatcher;
 import java.io.PrintWriter;
+import utilerias.ColaDeMensajes;
 
 public class EmisorDeRed implements IDispatcher, Runnable {
 
