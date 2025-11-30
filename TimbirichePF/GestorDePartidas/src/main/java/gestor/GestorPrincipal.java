@@ -9,16 +9,16 @@ import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import componenteArquitectonico.ProcesadorPipesFiltros;
-import interfaces.IDispatcher;
-import interfaces.IReceptorExterno;
+import interfaz.IDispatcher;
+import interfaz.IReceptorExterno;
 import fabricas.IDispatcherFactory;
 import fabricas.SocketDispatcherFactory;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import emisor.EmisorDeRed;
-import interfaces.ITuberiaEntrada;
-import interfaces.ITuberiaSalida;
+import interfaz.ITuberiaEntrada;
+import interfaz.ITuberiaSalida;
 import receptor.ReceptorDeRed;
 
 public class GestorPrincipal {

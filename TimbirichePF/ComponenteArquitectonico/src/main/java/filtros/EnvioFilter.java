@@ -1,6 +1,6 @@
 package filtros;
 
-import interfaces.IDispatcher;
+import interfaz.IDispatcher;
 
 public class EnvioFilter extends FilterBase<String, Void> {
 

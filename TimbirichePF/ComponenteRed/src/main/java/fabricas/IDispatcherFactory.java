@@ -5,7 +5,7 @@ package fabricas;
 import java.io.BufferedReader;
 import java.io.PrintWriter;
 import emisor.EmisorDeRed;
-import interfaces.IReceptorExterno;
+import interfaz.IReceptorExterno;
 import receptor.ReceptorDeRed;
 
 public interface IDispatcherFactory {

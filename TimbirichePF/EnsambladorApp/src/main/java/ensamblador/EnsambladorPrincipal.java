@@ -1,10 +1,10 @@
 package ensamblador;
 
 import componenteArquitectonico.ProcesadorPipesFiltros;
-import interfaces.IReceptorExterno;
-import interfaces.IDispatcher;
-import interfaces.ITuberiaEntrada; 
-import interfaces.ITuberiaSalida; 
+import interfaz.IReceptorExterno;
+import interfaz.IDispatcher;
+import interfaz.ITuberiaEntrada; 
+import interfaz.ITuberiaSalida; 
 import javax.swing.SwingUtilities;
 import modeloLogico.GestorCliente;
 import modeloLogico.IServicioJuego;

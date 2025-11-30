@@ -1,7 +1,7 @@
 package emisor;
 
 
-import interfaces.IDispatcher;
+import interfaz.IDispatcher;
 import java.io.PrintWriter;
 import utilerias.ColaDeMensajes;
 

@@ -1,6 +1,6 @@
 package receptor;
 
-import interfaces.IReceptorExterno;
+import interfaz.IReceptorExterno;
 import java.io.BufferedReader;
 
 

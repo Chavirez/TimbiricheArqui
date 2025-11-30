@@ -6,9 +6,9 @@
         <artifactId>TimbirichePF</artifactId>
         <version>1.0-SNAPSHOT</version>
     </parent>
-    <artifactId>InterfacesEmision</artifactId>
+    <artifactId>InterfazReceptorExterno</artifactId>
     <packaging>jar</packaging>
     <properties>
-        <exec.mainClass>itson.interfacesemision.InterfacesEmision</exec.mainClass>
+        <exec.mainClass>itson.interfazreceptorexterno.InterfazReceptorExterno</exec.mainClass>
     </properties>
 </project>

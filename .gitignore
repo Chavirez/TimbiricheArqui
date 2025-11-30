@@ -6,3 +6,7 @@
 /TimbirichePF/ComponenteDominio/target/
 /TimbirichePF/GestorDePartidas/target/
 /TimbirichePF/EnsambladorApp/target/
+/TimbirichePF/InterfazDispatcher/target/
+/TimbirichePF/InterfazTuberiaSalida/target/
+/TimbirichePF/InterfazReceptorExterno/target/
+/TimbirichePF/InterfazTuberiaEntrada/target/

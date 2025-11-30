@@ -17,13 +17,25 @@
         </dependency>
         <dependency>
             <groupId>ITSON</groupId>
-            <artifactId>InterfacesRecepcion</artifactId>
+            <artifactId>InterfazDispatcher</artifactId>
             <version>1.0-SNAPSHOT</version>
             <type>jar</type>
         </dependency>
         <dependency>
             <groupId>ITSON</groupId>
-            <artifactId>InterfacesEmision</artifactId>
+            <artifactId>InterfazTuberiaEntrada</artifactId>
+            <version>1.0-SNAPSHOT</version>
+            <type>jar</type>
+        </dependency>
+        <dependency>
+            <groupId>ITSON</groupId>
+            <artifactId>InterfazReceptorExterno</artifactId>
+            <version>1.0-SNAPSHOT</version>
+            <type>jar</type>
+        </dependency>
+        <dependency>
+            <groupId>ITSON</groupId>
+            <artifactId>InterfazTuberiaSalida</artifactId>
             <version>1.0-SNAPSHOT</version>
             <type>jar</type>
         </dependency>

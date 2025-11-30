@@ -10,10 +10,12 @@
         <module>GestorDePartidas</module>
         <module>EnsambladorApp</module>
         <module>ComponenteRed</module>
-        <module>InterfacesEmision</module>
-        <module>InterfacesRecepcion</module>
         <module>ComponenteDominio</module>
         <module>ComponenteArquitectonico</module>
+        <module>InterfazDispatcher</module>
+        <module>InterfazTuberiaSalida</module>
+        <module>InterfazTuberiaEntrada</module>
+        <module>InterfazReceptorExterno</module>
     </modules>
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>

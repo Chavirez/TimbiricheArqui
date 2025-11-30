@@ -2,12 +2,14 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
  * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Interface.java to edit this template
  */
-package interfaces;
+package interfaz;
 
 /**
  *
- * @author NaderCroft
+ * 
  */
-public interface ITuberiaEntrada {
-    void alRecibirDato(Object dato);
+public interface ITuberiaSalida {
+    
+    public void enviarDato(Object d);
+    
 }

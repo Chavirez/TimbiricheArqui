@@ -1,11 +1,12 @@
 package gestor;
 
+import interfaz.ITuberiaEntrada;
 import entidades.Jugador;
 import eventos.EventoError;
-import interfaces.*;
 import java.io.IOException;
 import java.net.Socket;
 import acciones.*;
+import interfaz.ITuberiaSalida;
 
 
 public class ManejadorCliente implements ITuberiaEntrada {

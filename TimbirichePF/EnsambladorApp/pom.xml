@@ -27,6 +27,30 @@
             <version>1.0-SNAPSHOT</version>
             <type>jar</type>
         </dependency>
+        <dependency>
+            <groupId>ITSON</groupId>
+            <artifactId>InterfazDispatcher</artifactId>
+            <version>1.0-SNAPSHOT</version>
+            <type>jar</type>
+        </dependency>
+        <dependency>
+            <groupId>ITSON</groupId>
+            <artifactId>InterfazTuberiaSalida</artifactId>
+            <version>1.0-SNAPSHOT</version>
+            <type>jar</type>
+        </dependency>
+        <dependency>
+            <groupId>ITSON</groupId>
+            <artifactId>InterfazTuberiaEntrada</artifactId>
+            <version>1.0-SNAPSHOT</version>
+            <type>jar</type>
+        </dependency>
+        <dependency>
+            <groupId>ITSON</groupId>
+            <artifactId>InterfazReceptorExterno</artifactId>
+            <version>1.0-SNAPSHOT</version>
+            <type>jar</type>
+        </dependency>
     </dependencies>
     <properties>
         <exec.mainClass>ensamblador.EnsambladorPrincipal</exec.mainClass>

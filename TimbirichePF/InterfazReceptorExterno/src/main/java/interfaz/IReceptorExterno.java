@@ -1,4 +1,4 @@
-package interfaces;
+package interfaz;
 
 /**
  * Define el contrato para el componente de arquitectura que recibe

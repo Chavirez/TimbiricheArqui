@@ -4,7 +4,10 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import java.awt.Color;
 import filtros.*;
-import interfaces.*;
+import interfaz.ITuberiaSalida;
+import interfaz.IDispatcher;
+import interfaz.IReceptorExterno;
+import interfaz.ITuberiaEntrada;
 import pipes.Pipeline;
 import utilidades.ColorTypeAdapter;
 
@@ -40,7 +43,7 @@ public class ProcesadorPipesFiltros implements ITuberiaSalida, ITuberiaEntrada, 
     }
 
     
-    public void conectarReceptorDeAplicacion(interfaces.ITuberiaEntrada receptor) { 
+    public void conectarReceptorDeAplicacion(ITuberiaEntrada receptor) { 
         this.receptorAplicacion = receptor;
         // Creamos la tubería de entrada que termina en el nuevo filtro EntregaTuberia
         tuberiaEntrada = new pipes.Pipeline<>();

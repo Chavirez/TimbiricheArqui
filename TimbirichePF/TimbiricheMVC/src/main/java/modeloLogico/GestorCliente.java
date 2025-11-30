@@ -16,8 +16,8 @@ import vista.PanelPrincipal;
 import vista.TableroVista;       
 import vista.ISelectorPuntoUI;  
 import controlador.TableroControlador;
-import interfaces.ITuberiaEntrada;
-import interfaces.ITuberiaSalida;
+import interfaz.ITuberiaEntrada;
+import interfaz.ITuberiaSalida;
 
 
 /**

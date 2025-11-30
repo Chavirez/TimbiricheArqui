@@ -4,14 +4,16 @@
  */
 package filtros;
 
+import interfaz.ITuberiaEntrada;
+
 /**
  *
  * @author NaderCroft
  */
 public class EntregaTuberiaFilter extends FilterBase<Object, Void>{
-    private final interfaces.ITuberiaEntrada receptor; 
+    private final ITuberiaEntrada receptor; 
 
-    public EntregaTuberiaFilter(interfaces.ITuberiaEntrada r){
+    public EntregaTuberiaFilter(ITuberiaEntrada r){
         this.receptor=r;
     } 
     

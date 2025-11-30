@@ -6,9 +6,9 @@
         <artifactId>TimbirichePF</artifactId>
         <version>1.0-SNAPSHOT</version>
     </parent>
-    <artifactId>InterfacesRecepcion</artifactId>
+    <artifactId>InterfazTuberiaEntrada</artifactId>
     <packaging>jar</packaging>
     <properties>
-        <exec.mainClass>itson.interfacesrecepcion.InterfacesRecepcion</exec.mainClass>
+        <exec.mainClass>itson.interfaztuberiaentrada.InterfazTuberiaEntrada</exec.mainClass>
     </properties>
 </project>
