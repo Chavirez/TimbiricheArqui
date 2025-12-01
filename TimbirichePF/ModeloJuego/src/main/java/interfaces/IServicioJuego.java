@@ -1,11 +1,10 @@
-package modeloLogico;
+package itson.modelojuego.interfaces;
 
 import entidades.Jugador;
 
 /**
- * Define el contrato para los servicios de lógica del juego. Es la interfaz que
- * el Modelo/Controlador usa para enviar solicitudes de acciones de juego al
- * GestorCliente
+ * Define las acciones que un cliente (UI) puede solicitar al sistema. Movido
+ * desde TimbiricheMVC para centralizar el contrato de juego.
  */
 public interface IServicioJuego {
 

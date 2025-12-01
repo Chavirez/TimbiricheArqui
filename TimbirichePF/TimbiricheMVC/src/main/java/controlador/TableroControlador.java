@@ -8,121 +8,71 @@ import javax.swing.SwingUtilities;
 import modelo.TableroModelo;
 import observador.Observador;
 import entidades.JuegoConfig;
+import itson.modelojuego.interfaces.IServicioJuego;
 import vista.ISelectorPuntoUI;
 
-/**
- * El Controlador (de MVC) para el tablero.
- */
-public class TableroControlador extends MouseAdapter implements Observador {
 
+public class TableroControlador extends MouseAdapter implements Observador {
     private final TableroModelo modelo;
     private final ISelectorPuntoUI selectorUI;
-
+    private final IServicioJuego servicioJuego;
     private Point primerPunto = null;
     private boolean finJuegoMostrado = false;
 
-    /**
-     * Recibe el Modelo y el Selector de UI.
-     */
-    public TableroControlador(TableroModelo modelo, ISelectorPuntoUI selectorUI) {
+    public TableroControlador(TableroModelo modelo, ISelectorPuntoUI selectorUI, IServicioJuego servicioJuego) {
         this.modelo = modelo;
         this.selectorUI = selectorUI;
-        this.modelo.registrarObservador(this);
-        System.out.println("CONTROLADOR: Controlador creado y registrado como observador");
-    }
-
-    public Point convertirClickAPunto(int x, int y) {
-        int tamaño = modelo.getTamaño();
-        if (tamaño == 0) {
-            return null;
-        }
-
-        int fila = Math.round((float) (y - JuegoConfig.MARGEN) / JuegoConfig.ESPACIO);
-        int col = Math.round((float) (x - JuegoConfig.MARGEN) / JuegoConfig.ESPACIO);
-
-        if (fila < 0 || col < 0 || fila >= tamaño || col >= tamaño) {
-            return null;
-        }
-        return new Point(fila, col);
-    }
-
-    public boolean sonAdyacentes(Point p1, Point p2) {
-        boolean esHorizontal = (Math.abs(p1.y - p2.y) == 1 && p1.x == p2.x);
-        boolean esVertical = (Math.abs(p1.x - p2.x) == 1 && p1.y == p2.y);
-
-        return esHorizontal || esVertical;
+        this.servicioJuego = servicioJuego;
+        this.modelo.agregarObservador(this);
     }
 
     @Override
     public void mouseClicked(MouseEvent e) {
-        System.out.println("CONTROLADOR: Mouse click en (" + e.getX() + ", " + e.getY() + ")");
-        
-        if (modelo.isJuegoTerminado() || modelo.getJugadorActual() == null) {
-            System.out.println("CONTROLADOR: Juego terminado o jugador actual nulo - ignorando clic");
-            return;
-        }
-
-        Point puntoClic = convertirClickAPunto(e.getX(), e.getY());
-        System.out.println("CONTROLADOR: Punto convertido: " + puntoClic);
-
-        if (puntoClic == null) {
-            primerPunto = null;
-            selectorUI.setPuntoSeleccionado(null);
-            System.out.println("CONTROLADOR: Punto nulo - limpiando selección");
-            return;
-        }
+        if (modelo.isJuegoTerminado() || modelo.getJugadorActual() == null) return;
+        Point puntoClic = convertirClickAPunto(e.getX(), e.getY()); // (Asumir método existente)
+        if (puntoClic == null) { limpiarSeleccion(); return; }
 
         if (primerPunto == null) {
-            // Primer clic
             primerPunto = puntoClic;
-            System.out.println("CONTROLADOR: Primer punto seleccionado: " + primerPunto);
             selectorUI.setPuntoSeleccionado(primerPunto);
-
         } else {
-            // Segundo clic
-            System.out.println("CONTROLADOR: Segundo punto seleccionado: " + puntoClic);
-            if (!primerPunto.equals(puntoClic) && sonAdyacentes(primerPunto, puntoClic)) {
-                System.out.println("CONTROLADOR: Puntos adyacentes - reportando línea");
-                reportLineAttempt(primerPunto, puntoClic);
-            } else {
-                System.out.println("CONTROLADOR: Puntos NO adyacentes o iguales - ignorando");
+            if (!primerPunto.equals(puntoClic) && sonAdyacentes(primerPunto, puntoClic)) { // (Asumir método existente)
+                reportarIntentoLinea(primerPunto, puntoClic);
             }
-            // Limpiar la selección después del segundo clic
-            primerPunto = null;
-            selectorUI.setPuntoSeleccionado(null);
-            System.out.println("CONTROLADOR: Selección limpiada");
+            limpiarSeleccion();
         }
     }
-
-    private void reportLineAttempt(Point p1, Point p2) {
-        boolean horizontal;
-        int fila, col;
-
-        if (p1.x == p2.x) {
-            horizontal = true;
-            fila = p1.x;
-            col = Math.min(p1.y, p2.y);
-        } else {
-            horizontal = false;
-            fila = Math.min(p1.x, p2.x);
-            col = p1.y;
-        }
-
-        System.out.println("CONTROLADOR: Reclamando línea - fila: " + fila + ", col: " + col + ", horizontal: " + horizontal);
-        modelo.reclamarLinea(fila, col, horizontal);
+    
+    private void reportarIntentoLinea(Point p1, Point p2) {
+        boolean horizontal = (p1.x == p2.x);
+        int fila = horizontal ? p1.x : Math.min(p1.x, p2.x);
+        int col = horizontal ? Math.min(p1.y, p2.y) : p1.y;
+        servicioJuego.reclamarLinea(fila, col, horizontal);
     }
+
+    private void limpiarSeleccion() { primerPunto = null; selectorUI.setPuntoSeleccionado(null); }
+    // ... Implementación de convertirClickAPunto y sonAdyacentes (usar la que ya tenías) ...
 
     @Override
     public void actualizar() {
-        System.out.println("CONTROLADOR: Recibida actualización del modelo");
-        
         if (modelo.isJuegoTerminado() && !finJuegoMostrado) {
             finJuegoMostrado = true;
-            String mensaje = "¡El juego ha terminado!";
-
-            SwingUtilities.invokeLater(() -> {
-                JOptionPane.showMessageDialog(null, mensaje, "Fin del Juego", JOptionPane.INFORMATION_MESSAGE);
-            });
+            SwingUtilities.invokeLater(() -> 
+                JOptionPane.showMessageDialog(null, "¡El juego ha terminado!", "Fin", JOptionPane.INFORMATION_MESSAGE)
+            );
         }
+    }
+    // NOTA: Agregar aquí los métodos privados de conversión de coordenadas que ya tenías
+    public Point convertirClickAPunto(int x, int y) {
+        int tamaño = modelo.getTamaño();
+        if (tamaño == 0) return null;
+        int fila = Math.round((float) (y - JuegoConfig.MARGEN) / JuegoConfig.ESPACIO);
+        int col = Math.round((float) (x - JuegoConfig.MARGEN) / JuegoConfig.ESPACIO);
+        if (fila < 0 || col < 0 || fila >= tamaño || col >= tamaño) return null;
+        return new Point(fila, col);
+    }
+
+    private boolean sonAdyacentes(Point p1, Point p2) {
+        return (Math.abs(p1.y - p2.y) == 1 && p1.x == p2.x) || (Math.abs(p1.x - p2.x) == 1 && p1.y == p2.y);
     }
 }

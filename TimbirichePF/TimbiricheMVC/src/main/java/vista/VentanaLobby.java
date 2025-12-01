@@ -1,6 +1,6 @@
 package vista;
 
-import modeloLogico.IServicioJuego;
+import itson.modelojuego.interfaces.IServicioJuego;
 import javax.swing.*;
 import java.awt.*;
 

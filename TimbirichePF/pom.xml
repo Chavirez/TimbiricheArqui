@@ -16,6 +16,7 @@
         <module>InterfazTuberiaSalida</module>
         <module>InterfazTuberiaEntrada</module>
         <module>InterfazReceptorExterno</module>
+        <module>ModeloJuego</module>
     </modules>
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>

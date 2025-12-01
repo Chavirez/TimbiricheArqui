@@ -17,13 +17,7 @@
         </dependency>
         <dependency>
             <groupId>ITSON</groupId>
-            <artifactId>InterfazTuberiaSalida</artifactId>
-            <version>1.0-SNAPSHOT</version>
-            <type>jar</type>
-        </dependency>
-        <dependency>
-            <groupId>ITSON</groupId>
-            <artifactId>InterfazTuberiaEntrada</artifactId>
+            <artifactId>ModeloJuego</artifactId>
             <version>1.0-SNAPSHOT</version>
             <type>jar</type>
         </dependency>

@@ -1,205 +1,159 @@
 package modeloLogico;
 
+import entidades.*;
 
 import java.awt.Component;
-import java.awt.event.MouseListener;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.SwingUtilities;
 import modelo.TableroModelo;
-import acciones.*;
-import entidades.*;
-import eventos.*;
-import vista.VentanaConfiguracion;
-import vista.VentanaLobby;
-import vista.PanelPrincipal;
-import vista.TableroVista;       
-import vista.ISelectorPuntoUI;  
+import vista.*;
 import controlador.TableroControlador;
-import interfaz.ITuberiaEntrada;
-import interfaz.ITuberiaSalida;
-
+import interfaces.IGestorJuego;
+import interfaces.IObservadorJuego;
+import itson.modelojuego.interfaces.IServicioJuego;
 
 /**
- * El cerebro del cliente.
+ * Orquestador de la UI. Implementa IServicioJuego (contrato) y IObservadorJuego
+ * (notificaciones). Se mantiene en MVC porque depende de javax.swing.
  */
-public class GestorCliente implements IServicioJuego, ITuberiaEntrada, IClienteJuego {
+public class GestorCliente implements IServicioJuego, IObservadorJuego {
 
-
-    private ITuberiaSalida envio;
-    private TableroModelo modelo;
-    private LogicaCliente logica;
+    private final IGestorJuego gestorJuego;
+    private TableroModelo modeloMVC;
     private Jugador jugadorLocal;
 
+    // Ventanas
     private VentanaLobby ventanaLobby;
     private JFrame ventanaJuego;
     private PanelPrincipal panelPrincipal;
-
     private VentanaConfiguracion ventanaConfiguracionActual;
 
-    public GestorCliente(ITuberiaSalida e) {
-        envio=e;
-        this.logica = new LogicaCliente();
+    public GestorCliente(IGestorJuego gestorJuego) {
+        this.gestorJuego = gestorJuego;
+        this.gestorJuego.registrarObservador(this);
     }
 
     public void setVentanaLobby(VentanaLobby lobby) {
         this.ventanaLobby = lobby;
     }
 
+    // --- IMPLEMENTACIÓN DE IServicioJuego (Acciones UI -> Lógica) ---
     @Override
     public void reclamarLinea(int fila, int col, boolean horizontal) {
-        if (logica.esMiTurno(modelo, jugadorLocal)) {
-            envio.enviarDato(new acciones.AccionReclamarLinea(fila, col,horizontal));
-        } else {
-            System.out.println("[GestorCliente] Clic ignorado, no es mi turno.");
-        }
+        // Delegamos a la lógica pura, inyectando el jugador local que la UI conoce
+        gestorJuego.reclamarLinea(fila, col, horizontal, jugadorLocal);
     }
 
     @Override
     public void crearPartida() {
-        envio.enviarDato(new AccionCrearPartida());
+        gestorJuego.crearPartida();
     }
 
     @Override
     public void unirseAPartida(String codigo) {
-        envio.enviarDato(new AccionUnirseAPartida(codigo));
+        gestorJuego.unirseAPartida(codigo);
     }
 
     @Override
     public void enviarConfiguracionJugador(Jugador jugador) {
         this.jugadorLocal = jugador;
-        envio.enviarDato(new AccionConfigurarJugador(jugador));
+        gestorJuego.configurarJugador(jugador);
     }
 
     @Override
     public void iniciarPartida() {
-        System.out.println("[GestorCliente] Intentando iniciar la partida...");
-        envio.enviarDato(new AccionIniciarPartida());
+        gestorJuego.iniciarPartida();
     }
 
+    // --- IMPLEMENTACIÓN DE IObservadorJuego (Lógica -> UI) ---
+    @Override
+    public void unionExitosa(EstadoPartidaDTO estadoInicial) {
+        SwingUtilities.invokeLater(() -> {
+            inicializarJuegoMVC(estadoInicial);
+            mostrarConfiguracion();
+        });
+    }
 
     @Override
-    public void onUnionExitosa(EstadoPartidaDTO estadoInicial) {
-        // 1. Creamos nuestro modelo local
-        this.modelo = new TableroModelo();
-        this.modelo.setServicioJuego(this);
+    public void estadoActualizado(EstadoPartidaDTO nuevoEstado) {
+        SwingUtilities.invokeLater(() -> {
+            actualizarIdentidadLocal(nuevoEstado);
+            if (modeloMVC != null) {
+                modeloMVC.actualizarEstado(nuevoEstado);
+            }
+        });
+    }
 
-        // 2. Cerramos el lobby
+    @Override
+    public void partidaIniciada() {
+        SwingUtilities.invokeLater(this::actualizarTitulo);
+    }
+
+    @Override
+    public void error(String mensaje) {
+        SwingUtilities.invokeLater(() -> {
+            Component parent = (ventanaConfiguracionActual != null && ventanaConfiguracionActual.isVisible())
+                    ? ventanaConfiguracionActual : (ventanaJuego != null ? ventanaJuego : ventanaLobby);
+            JOptionPane.showMessageDialog(parent, mensaje, "Error", JOptionPane.ERROR_MESSAGE);
+        });
+    }
+
+    // --- MÉTODOS PRIVADOS DE UI ---
+    public void mostrarConfiguracion() {
+        if (ventanaConfiguracionActual == null || !ventanaConfiguracionActual.isVisible()) {
+            ventanaConfiguracionActual = new VentanaConfiguracion(ventanaJuego, this);
+            ventanaConfiguracionActual.setVisible(true);
+        } else {
+            ventanaConfiguracionActual.toFront();
+        }
+    }
+
+    private void inicializarJuegoMVC(EstadoPartidaDTO estadoInicial) {
+        this.modeloMVC = new TableroModelo();
+        this.modeloMVC.actualizarEstado(estadoInicial);
+
         if (ventanaLobby != null) {
             ventanaLobby.dispose();
         }
 
-        // --- INICIO ENSAMBLAJE DE VISTA/CONTROLADOR (DI con Interface) ---
-        // 3a. Creamos la Vista. Se le pasa null como controlador al inicio.
-        TableroVista vista = new TableroVista(modelo, null);
-
-        // 3b. Creamos el Controlador, inyectando el Modelo y la Vista como interfaz.
-        // El Controlador SÓLO ve la interfaz ISelectorPuntoUI.
-        TableroControlador controlador = new TableroControlador(this.modelo, (ISelectorPuntoUI) vista);
-
-        // 3c. Cerramos el ciclo de dependencia: Conectamos la Vista al Controlador real.
-        // Esto registra el controlador como MouseListener.
+        TableroVista vista = new TableroVista(modeloMVC, null);
+        TableroControlador controlador = new TableroControlador(modeloMVC, vista, this);
         vista.addMouseListener(controlador);
 
-        // 4. Creamos PanelPrincipal e inyectamos el MouseListener (Controlador)
-        this.panelPrincipal = new PanelPrincipal(this.modelo, (MouseListener) controlador);
+        this.panelPrincipal = new PanelPrincipal(modeloMVC, controlador);
+        modeloMVC.agregarObservador(panelPrincipal);
+        modeloMVC.agregarObservador(controlador);
 
-        // --- FIN ENSAMBLAJE ---
-        // 5. Conectar Observadores (Cableado)
-        this.modelo.agregarObservador(panelPrincipal);
-        this.modelo.agregarObservador(controlador);
-
-        // 6. Conectar el botón "Iniciar Partida" del PanelLateral
         panelPrincipal.getPanelLateral().setServicioJuego(this);
 
-        // 7. Crear la ventana principal del juego
         ventanaJuego = new JFrame("Timbiriche - Sala de Espera");
         ventanaJuego.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         ventanaJuego.add(panelPrincipal);
         ventanaJuego.pack();
-        ventanaJuego.setMinimumSize(ventanaJuego.getPreferredSize());
         ventanaJuego.setLocationRelativeTo(null);
-
-        // 8. ACTUALIZAMOS EL MODELO CON EL ESTADO 
-        this.modelo.actualizarDesdeDTO(estadoInicial);
-
-        // 9. Mostramos la ventana del juego
         ventanaJuego.setVisible(true);
-
-        // 10. Pedimos la configuración al usuario
-        onConfiguracionRequerida();
     }
 
-    @Override
-    public void onConfiguracionRequerida() {
-        if (this.ventanaConfiguracionActual != null && this.ventanaConfiguracionActual.isVisible()) {
-            this.ventanaConfiguracionActual.toFront();
-            return;
+    private void actualizarIdentidadLocal(EstadoPartidaDTO estado) {
+        if (this.jugadorLocal != null && this.jugadorLocal.id() == 0) {
+            for (Jugador j : estado.jugadores()) {
+                if (j.nombre().equals(this.jugadorLocal.nombre())) {
+                    this.jugadorLocal = j;
+                    if (ventanaConfiguracionActual != null) {
+                        ventanaConfiguracionActual.dispose();
+                        ventanaConfiguracionActual = null;
+                    }
+                    actualizarTitulo();
+                    break;
+                }
+            }
         }
-
-        VentanaConfiguracion configDialog = new VentanaConfiguracion(ventanaJuego, this);
-        this.ventanaConfiguracionActual = configDialog;
-        configDialog.setVisible(true);
     }
 
-    @Override
-    public void onPartidaIniciada() {
+    private void actualizarTitulo() {
         if (ventanaJuego != null && jugadorLocal != null) {
             ventanaJuego.setTitle("Timbiriche - " + jugadorLocal.nombre());
         }
-    }
-
-    @Override
-    public void onEstadoPartidaActualizado(EstadoPartidaDTO nuevoEstado) {
-        if (this.modelo != null) {
-
-            if (this.jugadorLocal != null && this.jugadorLocal.id() == 0) {
-                for (Jugador j : nuevoEstado.jugadores()) {
-                    if (j.nombre().equals(this.jugadorLocal.nombre())) {
-
-                        this.jugadorLocal = j;
-
-                        if (this.ventanaConfiguracionActual != null) {
-                            this.ventanaConfiguracionActual.setVisible(false);
-                            this.ventanaConfiguracionActual.dispose();
-                            this.ventanaConfiguracionActual = null;
-                        }
-
-                        if (ventanaJuego != null && !nuevoEstado.juegoTerminado()) {
-                            ventanaJuego.setTitle("Timbiriche - " + jugadorLocal.nombre());
-                        }
-                        break;
-                    }
-                }
-            }
-            this.modelo.actualizarDesdeDTO(nuevoEstado);
-        }
-    }
-
-    @Override
-    public void onMostrarError(String mensaje) {
-        Component ventanaActiva = (this.ventanaConfiguracionActual != null && this.ventanaConfiguracionActual.isVisible())
-                ? this.ventanaConfiguracionActual
-                : (ventanaJuego != null) ? ventanaJuego : ventanaLobby;
-
-        JOptionPane.showMessageDialog(ventanaActiva, mensaje, "Error del Servidor", JOptionPane.ERROR_MESSAGE);
-    }
-
-    @Override
-    public void alRecibirDato(Object dato) {
-        SwingUtilities.invokeLater(() -> {
-            switch (dato) {
-                case EventoEstadoActualizado e ->
-                    onEstadoPartidaActualizado(e.getNuevoEstado());
-                case RespuestaUnionExitosa r ->
-                    onUnionExitosa(r.getEstadoInicial());
-                case EventoPartidaIniciada e ->
-                    onPartidaIniciada();
-                case EventoError e ->
-                    onMostrarError(e.getMensaje());
-                default ->
-                    System.err.println("DTO desconocido recibido: " + dato.getClass().getName());
-            }
-        });
     }
 }

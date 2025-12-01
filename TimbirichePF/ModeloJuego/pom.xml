@@ -6,34 +6,29 @@
         <artifactId>TimbirichePF</artifactId>
         <version>1.0-SNAPSHOT</version>
     </parent>
-    <artifactId>EnsambladorApp</artifactId>
+    <artifactId>ModeloJuego</artifactId>
     <packaging>jar</packaging>
     <dependencies>
         <dependency>
             <groupId>ITSON</groupId>
-            <artifactId>ComponenteArquitectonico</artifactId>
+            <artifactId>ComponenteDominio</artifactId>
             <version>1.0-SNAPSHOT</version>
             <type>jar</type>
         </dependency>
         <dependency>
             <groupId>ITSON</groupId>
-            <artifactId>TimbiricheMVC</artifactId>
+            <artifactId>InterfazTuberiaEntrada</artifactId>
             <version>1.0-SNAPSHOT</version>
             <type>jar</type>
         </dependency>
         <dependency>
             <groupId>ITSON</groupId>
-            <artifactId>ComponenteRed</artifactId>
+            <artifactId>InterfazTuberiaSalida</artifactId>
             <version>1.0-SNAPSHOT</version>
             <type>jar</type>
-        </dependency>
-        <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>ModeloJuego</artifactId>
-            <version>${project.version}</version>
         </dependency>
     </dependencies>
     <properties>
-        <exec.mainClass>ensamblador.EnsambladorPrincipal</exec.mainClass>
+        <exec.mainClass>itson.modelojuego.ModeloJuego</exec.mainClass>
     </properties>
 </project>
