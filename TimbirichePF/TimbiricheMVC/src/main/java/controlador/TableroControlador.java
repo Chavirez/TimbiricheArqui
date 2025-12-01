@@ -8,7 +8,7 @@ import javax.swing.SwingUtilities;
 import modelo.TableroModelo;
 import observador.Observador;
 import entidades.JuegoConfig;
-import itson.modelojuego.interfaces.IServicioJuego;
+import interfaces.IServicioJuego;
 import vista.ISelectorPuntoUI;
 
 public class TableroControlador extends MouseAdapter implements Observador {

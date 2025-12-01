@@ -11,7 +11,7 @@ import vista.*;
 import controlador.TableroControlador;
 import interfaces.IGestorJuego;
 import interfaces.IObservadorJuego;
-import itson.modelojuego.interfaces.IServicioJuego;
+import interfaces.IServicioJuego;
 
 /**
  * Orquestador de la UI. Implementa IServicioJuego (contrato) y IObservadorJuego

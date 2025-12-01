@@ -16,7 +16,8 @@ import modeloLogico.GestorCliente;
 import receptor.ReceptorDeRed;
 import emisor.EmisorDeRed;
 import interfaces.IGestorJuego;
-import itson.modelojuego.interfaces.IServicioJuego;
+import interfaces.IServicioJuego;
+
 import modeloJuego.GestorJuego;
 import vista.VentanaLobby;
 

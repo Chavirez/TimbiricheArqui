@@ -2,7 +2,7 @@ package vista;
 
 import utilidades.Recursos;
 import entidades.Jugador;
-import itson.modelojuego.interfaces.IServicioJuego;
+import interfaces.IServicioJuego;
 import javax.swing.*;
 import java.awt.*;
 import modelo.TableroModelo;
