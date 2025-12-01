@@ -11,8 +11,8 @@ import entidades.JuegoConfig;
 import itson.modelojuego.interfaces.IServicioJuego;
 import vista.ISelectorPuntoUI;
 
-
 public class TableroControlador extends MouseAdapter implements Observador {
+
     private final TableroModelo modelo;
     private final ISelectorPuntoUI selectorUI;
     private final IServicioJuego servicioJuego;
@@ -28,9 +28,14 @@ public class TableroControlador extends MouseAdapter implements Observador {
 
     @Override
     public void mouseClicked(MouseEvent e) {
-        if (modelo.isJuegoTerminado() || modelo.getJugadorActual() == null) return;
+        if (modelo.isJuegoTerminado() || modelo.getJugadorActual() == null) {
+            return;
+        }
         Point puntoClic = convertirClickAPunto(e.getX(), e.getY()); // (Asumir método existente)
-        if (puntoClic == null) { limpiarSeleccion(); return; }
+        if (puntoClic == null) {
+            limpiarSeleccion();
+            return;
+        }
 
         if (primerPunto == null) {
             primerPunto = puntoClic;
@@ -42,7 +47,7 @@ public class TableroControlador extends MouseAdapter implements Observador {
             limpiarSeleccion();
         }
     }
-    
+
     private void reportarIntentoLinea(Point p1, Point p2) {
         boolean horizontal = (p1.x == p2.x);
         int fila = horizontal ? p1.x : Math.min(p1.x, p2.x);
@@ -50,25 +55,31 @@ public class TableroControlador extends MouseAdapter implements Observador {
         servicioJuego.reclamarLinea(fila, col, horizontal);
     }
 
-    private void limpiarSeleccion() { primerPunto = null; selectorUI.setPuntoSeleccionado(null); }
-    // ... Implementación de convertirClickAPunto y sonAdyacentes (usar la que ya tenías) ...
+    private void limpiarSeleccion() {
+        primerPunto = null;
+        selectorUI.setPuntoSeleccionado(null);
+    }
 
     @Override
     public void actualizar() {
         if (modelo.isJuegoTerminado() && !finJuegoMostrado) {
             finJuegoMostrado = true;
-            SwingUtilities.invokeLater(() -> 
-                JOptionPane.showMessageDialog(null, "¡El juego ha terminado!", "Fin", JOptionPane.INFORMATION_MESSAGE)
+            SwingUtilities.invokeLater(()
+                    -> JOptionPane.showMessageDialog(null, "¡El juego ha terminado!", "Fin", JOptionPane.INFORMATION_MESSAGE)
             );
         }
     }
-    // NOTA: Agregar aquí los métodos privados de conversión de coordenadas que ya tenías
+
     public Point convertirClickAPunto(int x, int y) {
         int tamaño = modelo.getTamaño();
-        if (tamaño == 0) return null;
+        if (tamaño == 0) {
+            return null;
+        }
         int fila = Math.round((float) (y - JuegoConfig.MARGEN) / JuegoConfig.ESPACIO);
         int col = Math.round((float) (x - JuegoConfig.MARGEN) / JuegoConfig.ESPACIO);
-        if (fila < 0 || col < 0 || fila >= tamaño || col >= tamaño) return null;
+        if (fila < 0 || col < 0 || fila >= tamaño || col >= tamaño) {
+            return null;
+        }
         return new Point(fila, col);
     }
 
