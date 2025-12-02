@@ -5,6 +5,7 @@ import entidades.Jugador;
 import interfaces.IServicioJuego;
 import javax.swing.*;
 import java.awt.*;
+import java.util.List;
 import modelo.TableroModelo;
 
 public class PanelLateral extends JPanel {
@@ -49,18 +50,27 @@ public class PanelLateral extends JPanel {
         btnSalir.addActionListener(e -> System.exit(0));
         add(btnSalir);
     }
-
+    
+    // Método para inyectar la dependencia del controlador/servicio
     public void setServicioJuego(IServicioJuego servicioJuego) {
+        this.servicioJuego = servicioJuego;
+    }
+
+    // Constructor auxiliar si se requiere pasar el servicio al inicio
+    public PanelLateral(TableroModelo modelo, IServicioJuego servicioJuego) {
+        this(modelo);
         this.servicioJuego = servicioJuego;
     }
 
     private void inicializarPanelesJugadores() {
         panelJugadores.removeAll();
-        java.util.List<Jugador> jugadores = modelo.getJugadores();
+        List<Jugador> jugadores = modelo.getJugadores();
 
         if (jugadores == null || jugadores.isEmpty()) {
             panelJugadores.add(new JLabel("Esperando jugadores..."));
             this.labelsPuntajes = new JLabel[0]; // Asegura que sea un array no nulo
+            panelJugadores.revalidate();
+            panelJugadores.repaint();
             return;
         }
 
@@ -77,7 +87,9 @@ public class PanelLateral extends JPanel {
         JPanel panel = new JPanel(new BorderLayout(10, 0));
         panel.setMaximumSize(new Dimension(240, 60));
         panel.setBackground(new Color(230, 230, 230));
+        panel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
 
+        // Cargar avatar (asegúrate de que Recursos.loadScaledAvatar maneje rutas nulas si es necesario)
         JLabel lblAvatar = new JLabel(Recursos.loadScaledAvatar(jugador.avatarPath(), 50, 50));
         lblAvatar.setPreferredSize(new Dimension(50, 50));
 
@@ -96,17 +108,20 @@ public class PanelLateral extends JPanel {
     }
 
     /**
-     * Método llamado por PanelPrincipal al actualizarse el Modelo.
+     * Método llamado por PanelPrincipal (o el Observador) al actualizarse el Modelo.
      */
     public void actualizarUI() {
         Jugador jugadorActualDelModelo = modelo.getJugadorActual();
-        java.util.List<Jugador> jugadores = modelo.getJugadores();
+        List<Jugador> jugadores = modelo.getJugadores();
         int jugadoresSize = (jugadores != null) ? jugadores.size() : 0;
+        
+        // Si cambió la cantidad de jugadores o es la primera carga con datos
         if (this.labelsPuntajes.length != jugadoresSize
-                || (jugadorActualDelModelo == null && jugadoresSize > 0)) {
+                || (jugadorActualDelModelo == null && jugadoresSize > 0 && this.labelsPuntajes.length == 0)) {
             inicializarPanelesJugadores();
         }
 
+        // Actualizar los textos de los puntajes
         int[] puntajes = modelo.getPuntajes();
         if (puntajes != null) {
             int limite = Math.min(puntajes.length, labelsPuntajes.length);
@@ -116,6 +131,10 @@ public class PanelLateral extends JPanel {
                 }
             }
         }
+        
+        // Lógica para mostrar el botón de inicio:
+        // Solo si la partida no ha iniciado (jugadorActual es null), no ha terminado, y hay al menos un jugador.
+        // Nota: Ajusta 'jugadoresSize >= 2' si requieres mínimo 2 jugadores.
         if (jugadorActualDelModelo == null && !modelo.isJuegoTerminado() && jugadoresSize >= 1) {
             btnIniciarPartida.setVisible(true);
         } else {

@@ -3,46 +3,49 @@ package controlador;
 import java.awt.Point;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import javax.swing.JOptionPane;
-import javax.swing.SwingUtilities;
 import modelo.TableroModelo;
-import observador.Observador;
 import entidades.JuegoConfig;
-import interfaces.IServicioJuego;
-import vista.ISelectorPuntoUI;
+import interfaces.IGestorTablero;
 
-public class TableroControlador extends MouseAdapter implements Observador {
+/**
+ * Controlador del Tablero.
+ * - Implementa IGestorTablero para definir la acción de juego.
+ * - Recibe los eventos del mouse y los traduce a lógica de negocio.
+ */
+public class TableroControlador extends MouseAdapter implements IGestorTablero {
 
     private final TableroModelo modelo;
-    private final ISelectorPuntoUI selectorUI;
-    private final IServicioJuego servicioJuego;
-    private Point primerPunto = null;
-    private boolean finJuegoMostrado = false;
+    private final IGestorTablero backend; // El modelo de la app o gestor de red
+    private Point primerPuntoCache = null;
 
-    public TableroControlador(TableroModelo modelo, ISelectorPuntoUI selectorUI, IServicioJuego servicioJuego) {
+    /**
+     * Constructor Ciego (Sin Vista).
+     * @param modelo El estado del tablero (para cálculos y selección).
+     * @param backend Quien procesa la jugada final (AplicacionModelo).
+     */
+    public TableroControlador(TableroModelo modelo, IGestorTablero backend) {
         this.modelo = modelo;
-        this.selectorUI = selectorUI;
-        this.servicioJuego = servicioJuego;
-        this.modelo.agregarObservador(this);
+        this.backend = backend;
     }
 
     @Override
     public void mouseClicked(MouseEvent e) {
-        if (modelo.isJuegoTerminado() || modelo.getJugadorActual() == null) {
-            return;
-        }
-        Point puntoClic = convertirClickAPunto(e.getX(), e.getY()); // (Asumir método existente)
+        if (modelo.isJuegoTerminado() || modelo.getJugadorActual() == null) return;
+        
+        Point puntoClic = convertirClickAPunto(e.getX(), e.getY());
         if (puntoClic == null) {
             limpiarSeleccion();
             return;
         }
 
-        if (primerPunto == null) {
-            primerPunto = puntoClic;
-            selectorUI.setPuntoSeleccionado(primerPunto);
+        if (primerPuntoCache == null) {
+            // Fase 1: Selección visual (Actualiza modelo, vista reacciona)
+            primerPuntoCache = puntoClic;
+            modelo.setPuntoSeleccionado(primerPuntoCache);
         } else {
-            if (!primerPunto.equals(puntoClic) && sonAdyacentes(primerPunto, puntoClic)) { // (Asumir método existente)
-                reportarIntentoLinea(primerPunto, puntoClic);
+            // Fase 2: Intentar jugada
+            if (!primerPuntoCache.equals(puntoClic) && sonAdyacentes(primerPuntoCache, puntoClic)) {
+                reportarIntentoLinea(primerPuntoCache, puntoClic);
             }
             limpiarSeleccion();
         }
@@ -52,34 +55,30 @@ public class TableroControlador extends MouseAdapter implements Observador {
         boolean horizontal = (p1.x == p2.x);
         int fila = horizontal ? p1.x : Math.min(p1.x, p2.x);
         int col = horizontal ? Math.min(p1.y, p2.y) : p1.y;
-        servicioJuego.reclamarLinea(fila, col, horizontal);
+        
+        // Usamos nuestra propia implementación de la interfaz para enviar la jugada
+        this.reclamarLinea(fila, col, horizontal);
+    }
+
+    // --- Implementación de IGestorTablero ---
+    @Override
+    public void reclamarLinea(int fila, int col, boolean horizontal) {
+        // Delegamos al backend (AplicacionModelo) que tiene la conexión de red
+        backend.reclamarLinea(fila, col, horizontal);
     }
 
     private void limpiarSeleccion() {
-        primerPunto = null;
-        selectorUI.setPuntoSeleccionado(null);
+        primerPuntoCache = null;
+        modelo.setPuntoSeleccionado(null);
     }
-
-    @Override
-    public void actualizar() {
-        if (modelo.isJuegoTerminado() && !finJuegoMostrado) {
-            finJuegoMostrado = true;
-            SwingUtilities.invokeLater(()
-                    -> JOptionPane.showMessageDialog(null, "¡El juego ha terminado!", "Fin", JOptionPane.INFORMATION_MESSAGE)
-            );
-        }
-    }
-
-    public Point convertirClickAPunto(int x, int y) {
+    
+    // --- Lógica Auxiliar ---
+    private Point convertirClickAPunto(int x, int y) {
         int tamaño = modelo.getTamaño();
-        if (tamaño == 0) {
-            return null;
-        }
+        if (tamaño == 0) return null;
         int fila = Math.round((float) (y - JuegoConfig.MARGEN) / JuegoConfig.ESPACIO);
         int col = Math.round((float) (x - JuegoConfig.MARGEN) / JuegoConfig.ESPACIO);
-        if (fila < 0 || col < 0 || fila >= tamaño || col >= tamaño) {
-            return null;
-        }
+        if (fila < 0 || col < 0 || fila >= tamaño || col >= tamaño) return null;
         return new Point(fila, col);
     }
 

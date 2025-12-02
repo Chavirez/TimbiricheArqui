@@ -3,6 +3,7 @@ package vista;
 import utilidades.Recursos;
 import java.awt.BorderLayout;
 import java.awt.Frame;
+import java.awt.Window;
 import java.awt.GridLayout;
 import java.util.List;
 import java.util.Set;
@@ -23,8 +24,9 @@ public class DialogoSelectorAvatar extends JDialog {
 
     private String avatarSeleccionadoPath = null;
 
-    public DialogoSelectorAvatar(Frame owner, String currentAvatarPath, Set<String> avataresEnUso) {
-        super(owner, "Seleccionar Avatar", true);
+    public DialogoSelectorAvatar(Window owner, String currentAvatarPath, Set<String> avataresEnUso) {
+        // Convertir Window a Frame para el constructor de JDialog
+        super(owner instanceof Frame ? (Frame) owner : null, "Seleccionar Avatar", true);
         setDefaultCloseOperation(DISPOSE_ON_CLOSE);
         setLayout(new BorderLayout());
 
@@ -63,7 +65,7 @@ public class DialogoSelectorAvatar extends JDialog {
             if (seleccion != null) {
                 avatarSeleccionadoPath = seleccion.getActionCommand();
             }
-            dispose(); // Cierra el diálogo
+            dispose();
         });
         add(btnConfirmar, BorderLayout.SOUTH);
 

@@ -170,6 +170,21 @@ public class Partida {
             modeloLogico.siguienteTurno();
         }
         distribuirEstadoATodos();
+        
+        // 3. NUEVO: Verificar si el juego terminó y notificar ganador
+        if (modeloLogico.isJuegoTerminado()) {
+            Jugador ganador = modeloLogico.obtenerGanador();
+            String mensaje = (ganador == null) ? "¡Es un empate!" : "¡Ganador: " + ganador.nombre() + "!";
+            
+            EventoPartidaTerminada eventoFin = new EventoPartidaTerminada(
+                ganador, 
+                modeloLogico.getPuntajes(), 
+                mensaje
+            );
+            
+            System.out.println("[PARTIDA " + codigoSala + "] Juego terminado. " + mensaje);
+            distribuirDTOaTodos(eventoFin);
+        }
     }
 
     public synchronized void eliminarJugador(ManejadorCliente manejador) {
@@ -214,4 +229,6 @@ public class Partida {
                 modeloLogico.isJuegoTerminado()
         );
     }
+    
+    
 }

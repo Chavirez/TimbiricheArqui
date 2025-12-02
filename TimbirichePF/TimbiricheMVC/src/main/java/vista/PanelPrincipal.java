@@ -1,9 +1,8 @@
 package vista;
 
-import entidades.JuegoConfig;
+import controlador.TableroControlador;
 import entidades.Jugador;
 import java.awt.*;
-import java.awt.event.MouseListener;
 import javax.swing.*;
 import modelo.TableroModelo;
 import observador.Observador;
@@ -18,11 +17,15 @@ public class PanelPrincipal extends JPanel implements Observador {
 
     /**
      * @param modelo El modelo de datos.
-     * @param controlador El MouseListener (TableroControlador) inyectado por
-     * GestorCliente.
+     * @param controlador El TableroControlador para gestionar los clics en la vista.
      */
-    public PanelPrincipal(TableroModelo modelo, MouseListener controlador) {
+    public PanelPrincipal(TableroModelo modelo, TableroControlador controlador) {
         this.modelo = modelo;
+        
+        // Es buena práctica suscribirse al modelo aquí si este panel debe reaccionar por sí mismo
+        // aunque a veces se hace desde fuera. Lo dejamos según tu snippet (sin suscripción explícita aquí)
+        // asumiendo que el ensamblador o el modelo agregan este observador.
+        this.modelo.agregarObservador(this); 
 
         setLayout(new BorderLayout(10, 10));
         setBackground(new Color(200, 200, 200));
@@ -30,6 +33,8 @@ public class PanelPrincipal extends JPanel implements Observador {
 
         // --- 1. Panel Superior (NORTE): Turno y Código ---
         JPanel panelNorte = new JPanel(new BorderLayout());
+        // Hacemos el panel norte transparente para que se vea el fondo gris
+        panelNorte.setOpaque(false); 
 
         lblTurno = new JLabel(" ", SwingConstants.LEFT);
         lblTurno.setFont(new Font("Arial", Font.BOLD, 24));
@@ -42,7 +47,7 @@ public class PanelPrincipal extends JPanel implements Observador {
         panelNorte.add(lblCodigoSala, BorderLayout.EAST);
 
         // --- 2. Tablero Central (CENTRO) ---
-        // Se llama al constructor corregido de TableroVista (modelo + controlador)
+        // Se usa TableroControlador explícitamente para coincidir con el constructor de TableroVista
         this.tableroVista = new TableroVista(modelo, controlador);
 
         // --- 3. Panel Lateral (ESTE) ---
@@ -71,7 +76,9 @@ public class PanelPrincipal extends JPanel implements Observador {
         SwingUtilities.invokeLater(() -> {
 
             // 1. Actualizar Código de Sala
-            lblCodigoSala.setText("Código: " + modelo.getCodigoSala());
+            // Verificamos si el modelo tiene el método getCodigoSala, si no, manejamos el caso
+            String codigo = (modelo.getCodigoSala() != null) ? modelo.getCodigoSala() : "---";
+            lblCodigoSala.setText("Código: " + codigo);
 
             if (modelo.getEstadoActual() == null) {
                 lblTurno.setText("Esperando estado del servidor...");
@@ -91,16 +98,15 @@ public class PanelPrincipal extends JPanel implements Observador {
                     lblTurno.setText("Turno: " + actual.nombre());
                     lblTurno.setForeground(actual.color());
                 } else {
-                    // Sala de Espera
+                    // Sala de Espera (Partida no iniciada)
                     lblTurno.setText("Sala de Espera");
                     lblTurno.setForeground(Color.BLACK);
                 }
             }
 
             // 3. Actualizar Subcomponentes (Vista y Lateral)
-            // Llama al método corregido que no requiere argumentos
-            panelLateral.actualizarUI();
-            tableroVista.repaint();
+            if (panelLateral != null) panelLateral.actualizarUI();
+            if (tableroVista != null) tableroVista.repaint();
         });
     }
 }

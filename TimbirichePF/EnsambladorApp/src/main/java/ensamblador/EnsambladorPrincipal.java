@@ -1,5 +1,6 @@
 package ensamblador;
 
+// --- Infraestructura de Red ---
 import componenteArquitectonico.ProcesadorPipesFiltros;
 import fabricas.IDispatcherFactory;
 import fabricas.SocketDispatcherFactory;
@@ -7,66 +8,83 @@ import interfaz.IDispatcher;
 import interfaz.IReceptorExterno;
 import interfaz.ITuberiaEntrada;
 import interfaz.ITuberiaSalida;
+import receptor.ReceptorDeRed;
+import emisor.EmisorDeRed;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.Socket;
-import javax.swing.SwingUtilities;
-import modeloLogico.GestorCliente;
-import receptor.ReceptorDeRed;
-import emisor.EmisorDeRed;
-import interfaces.IGestorJuego;
-import interfaces.IServicioJuego;
 
+// --- Lógica Compartida ---
+import interfaces.IGestorJuego;
 import modeloJuego.GestorJuego;
-import vista.VentanaLobby;
+
+// --- MVC de Aplicación ---
+import modelo.AplicacionModelo;
+import controlador.AplicacionControlador;
+
+import javax.swing.JOptionPane;
+import javax.swing.SwingUtilities;
 
 public class EnsambladorPrincipal {
 
     public static void main(String[] args) {
         SwingUtilities.invokeLater(() -> {
             try {
-                // 1. Infraestructura de Red
-                Socket socket = new Socket("localhost", 9090);
-                PrintWriter escritor = new PrintWriter(socket.getOutputStream(), true);
-                BufferedReader lector = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-
-                ProcesadorPipesFiltros procesador = new ProcesadorPipesFiltros();
-                IDispatcherFactory fabrica = new SocketDispatcherFactory();
-                
-                // 2. Capa de Lógica de Negocio (ModeloJuego)
-                // Esta capa recibe los mensajes de la red (ITuberiaEntrada)
-                GestorJuego gestorJuego = new GestorJuego();
-
-                // 3. Conexiones Físicas
-                EmisorDeRed emisor = fabrica.crearEmisor(escritor);
-                // Conectamos el receptor físico al procesador
-                ReceptorDeRed receptor = fabrica.crearReceptor(lector, (IReceptorExterno) procesador, () -> {});
-                
-                // 4. Cableado de Tuberías
-                // Salida: Lógica -> Procesador -> Red
-                procesador.conectarDespachador((IDispatcher) emisor);
-                gestorJuego.setTuberiaSalida((ITuberiaSalida) procesador);
-
-                // Entrada: Red -> Procesador -> Lógica
-                procesador.conectarReceptorDeAplicacion((ITuberiaEntrada) gestorJuego);
-
-                // 5. Iniciar Hilos
-                new Thread(emisor).start();
-                new Thread(receptor).start();
-
-                // 6. Capa de Vista (MVC)
-                // Inyectamos la Lógica en el GestorCliente
-                GestorCliente gestorCliente = new GestorCliente((IGestorJuego) gestorJuego);
-                
-                VentanaLobby lobby = new VentanaLobby((IServicioJuego) gestorCliente);
-                gestorCliente.setVentanaLobby(lobby);
-                
-                lobby.setVisible(true);
-
+                new EnsambladorPrincipal().iniciar();
             } catch (Exception e) {
                 e.printStackTrace();
+                JOptionPane.showMessageDialog(null, "Error fatal al iniciar: " + e.getMessage());
             }
         });
+    }
+
+    public void iniciar() throws Exception {
+        // -----------------------------------------------------------
+        // 1. INFRAESTRUCTURA DE RED (Pipes & Filters)
+        // -----------------------------------------------------------
+        // Configuración de Sockets
+        Socket socket = new Socket("localhost", 9090);
+        PrintWriter escritor = new PrintWriter(socket.getOutputStream(), true);
+        BufferedReader lector = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+
+        // Creación del Procesador Arquitectónico
+        ProcesadorPipesFiltros procesador = new ProcesadorPipesFiltros();
+        
+        // Fábrica para crear componentes de red
+        IDispatcherFactory fabrica = new SocketDispatcherFactory();
+        EmisorDeRed emisor = fabrica.crearEmisor(escritor);
+        ReceptorDeRed receptor = fabrica.crearReceptor(lector, (IReceptorExterno) procesador, () -> System.exit(0));
+
+        // Conectar el despachador (Emisor) a la tubería de salida
+        procesador.conectarDespachador((IDispatcher) emisor);
+
+        // -----------------------------------------------------------
+        // 2. LÓGICA DE NEGOCIO (Backend Local)
+        // -----------------------------------------------------------
+        GestorJuego gestorJuegoBackend = new GestorJuego();
+        
+        // Conexiones bidireccionales entre el Gestor de Juego y el Procesador
+        gestorJuegoBackend.setTuberiaSalida((ITuberiaSalida) procesador);
+        procesador.conectarReceptorDeAplicacion((ITuberiaEntrada) gestorJuegoBackend);
+
+        // Iniciar hilos de red
+        new Thread(emisor).start();
+        new Thread(receptor).start();
+
+        // -----------------------------------------------------------
+        // 3. MVC DE LA APLICACIÓN (UI y Estado)
+        // -----------------------------------------------------------
+        // El Modelo se conecta con el Backend local
+        AplicacionModelo appModelo = new AplicacionModelo((IGestorJuego) gestorJuegoBackend);
+        
+        // El Controlador recibe el Modelo. Ahora él gestionará las vistas.
+        AplicacionControlador appControlador = new AplicacionControlador(appModelo);
+
+        // -----------------------------------------------------------
+        // 4. ARRANQUE
+        // -----------------------------------------------------------
+        System.out.println("[ENSAMBLADOR] Sistema ensamblado correctamente. Iniciando UI...");
+        appControlador.iniciarAplicacion();
     }
 }

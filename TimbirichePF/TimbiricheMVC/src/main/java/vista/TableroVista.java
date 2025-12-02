@@ -1,70 +1,82 @@
 package vista;
 
+import controlador.TableroControlador;
+import modelo.TableroModelo;
+import observador.Observador;
+import entidades.JuegoConfig;
 import entidades.Jugador;
+
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.MouseListener;
-import modelo.TableroModelo;
-import entidades.JuegoConfig;
 
-/**
- * La Vista (JPanel) que dibuja el tablero y captura los clics.
- */
-public class TableroVista extends JPanel implements ISelectorPuntoUI {
+public class TableroVista extends JPanel implements Observador {
 
     private final TableroModelo modelo;
-    private Point puntoSeleccionado;
+    private final TableroControlador controlador;
 
-    public TableroVista(TableroModelo modelo, MouseListener controlador) {
+    public TableroVista(TableroModelo modelo, TableroControlador controlador) {
         this.modelo = modelo;
+        this.controlador = controlador;
+
+        this.modelo.agregarObservador(this);
         setBackground(Color.WHITE);
-        // Se conecta el controlador en el constructor (DI)
+
+        // Conectar el controlador como MouseListener (Inyección de dependencias)
         if (controlador != null) {
             this.addMouseListener(controlador);
-            System.out.println("VISTA: Controlador de mouse registrado");
-        } else {
-            System.err.println("VISTA: ERROR - Controlador nulo");
         }
     }
 
-    /**
-     * Implementación del contrato ISelectorPuntoUI.
-     */
     @Override
-    public void setPuntoSeleccionado(Point p) {
-        System.out.println("VISTA: setPuntoSeleccionado llamado con: " + p);
-        this.puntoSeleccionado = p;
+    public void actualizar() {
+        // Reacciona a los cambios del modelo repintando el tablero
+        repaint();
+    }
 
-        SwingUtilities.invokeLater(() -> {
-            this.repaint();
-            this.revalidate();
-        });
+    @Override
+    public Dimension getPreferredSize() {
+        // Cálculo dinámico del tamaño basado en la configuración
+        int tam = (modelo.getTamaño() > 0 ? modelo.getTamaño() : 10);
+        int size = (tam - 1) * JuegoConfig.ESPACIO + JuegoConfig.MARGEN * 2;
+        return new Dimension(size, size);
     }
 
     @Override
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
-        System.out.println("VISTA: paintComponent ejecutándose - puntoSeleccionado: " + puntoSeleccionado);
 
+        // Validación inicial para evitar errores de dibujado si no hay datos
         if (modelo.getTamaño() == 0) {
             g.drawString("Conectando con el servidor...", 50, 50);
             return;
         }
 
         Graphics2D g2 = (Graphics2D) g;
+        // Configuración de calidad visual (Antialiasing)
         g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+        // Configuración de trazo redondeado
         g2.setStroke(new BasicStroke(JuegoConfig.ANCHO_LINEA, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND));
+
         int tamaño = modelo.getTamaño();
 
-        // 1. Dibujar Cuadrados
+        // Obtenemos las estructuras de datos del modelo actual
+        int[][] cuadrados = modelo.getCuadrados();
+        int[][] lineasH = modelo.getLineasHorizontales();
+        int[][] lineasV = modelo.getLineasVerticales();
+        Point puntoSeleccionado = modelo.getPuntoSeleccionado();
+
+        // 1. Dibujar Cuadrados (Rellenos)
         for (int i = 0; i < tamaño - 1; i++) {
             for (int j = 0; j < tamaño - 1; j++) {
-                int jugadorId = modelo.getCuadrado(i, j);
-                if (jugadorId != 0) {
+                int jugadorId = cuadrados[i][j];
+                if (jugadorId > 0) {
                     g2.setColor(getColorDeJugador(jugadorId).brighter());
                     int x = JuegoConfig.MARGEN + j * JuegoConfig.ESPACIO;
                     int y = JuegoConfig.MARGEN + i * JuegoConfig.ESPACIO;
-                    g2.fillRect(x + JuegoConfig.ANCHO_LINEA / 2, y + JuegoConfig.ANCHO_LINEA / 2,
+
+                    // Ajuste visual para que el cuadrado no tape las líneas
+                    g2.fillRect(x + JuegoConfig.ANCHO_LINEA / 2,
+                            y + JuegoConfig.ANCHO_LINEA / 2,
                             JuegoConfig.ESPACIO - JuegoConfig.ANCHO_LINEA,
                             JuegoConfig.ESPACIO - JuegoConfig.ANCHO_LINEA);
                 }
@@ -74,8 +86,8 @@ public class TableroVista extends JPanel implements ISelectorPuntoUI {
         // 2. Dibujar Líneas Horizontales
         for (int i = 0; i < tamaño; i++) {
             for (int j = 0; j < tamaño - 1; j++) {
-                int jugadorId = modelo.getLineaHorizontal(i, j);
-                if (jugadorId != 0) {
+                int jugadorId = lineasH[i][j];
+                if (jugadorId > 0) {
                     g2.setColor(getColorDeJugador(jugadorId));
                     int x1 = JuegoConfig.MARGEN + j * JuegoConfig.ESPACIO;
                     int y = JuegoConfig.MARGEN + i * JuegoConfig.ESPACIO;
@@ -88,8 +100,8 @@ public class TableroVista extends JPanel implements ISelectorPuntoUI {
         // 3. Dibujar Líneas Verticales
         for (int i = 0; i < tamaño - 1; i++) {
             for (int j = 0; j < tamaño; j++) {
-                int jugadorId = modelo.getLineaVertical(i, j);
-                if (jugadorId != 0) {
+                int jugadorId = lineasV[i][j];
+                if (jugadorId > 0) {
                     g2.setColor(getColorDeJugador(jugadorId));
                     int x = JuegoConfig.MARGEN + j * JuegoConfig.ESPACIO;
                     int y1 = JuegoConfig.MARGEN + i * JuegoConfig.ESPACIO;
@@ -105,14 +117,15 @@ public class TableroVista extends JPanel implements ISelectorPuntoUI {
                 Point puntoActual = new Point(i, j);
                 int radio = JuegoConfig.RADIO_PUNTO;
 
+                // Lógica de resaltado visual del punto seleccionado
                 if (puntoSeleccionado != null && puntoActual.equals(puntoSeleccionado)) {
-                    g2.setColor(Color.GREEN); // 🟢 VERDE
-                    radio = radio + 100; // Tamaño aumentado
-                    System.out.println("VISTA: Pintando punto VERDE en (" + i + ", " + j + ")");
+                    g2.setColor(Color.GREEN); // 🟢 VERDE según referencia
+                    radio = radio + 6;        // Tamaño aumentado (ajustado para estética)
                 } else {
                     g2.setColor(Color.DARK_GRAY);
                 }
 
+                // Dibujar el punto centrado
                 int x = JuegoConfig.MARGEN + j * JuegoConfig.ESPACIO - radio;
                 int y = JuegoConfig.MARGEN + i * JuegoConfig.ESPACIO - radio;
                 g2.fillOval(x, y, radio * 2, radio * 2);
@@ -120,15 +133,9 @@ public class TableroVista extends JPanel implements ISelectorPuntoUI {
         }
     }
 
+    // Método auxiliar para obtener el color de forma segura
     private Color getColorDeJugador(int jugadorId) {
         Jugador jugador = modelo.getJugadorPorId(jugadorId);
         return (jugador != null) ? jugador.color() : Color.BLACK;
-    }
-
-    @Override
-    public Dimension getPreferredSize() {
-        int tam = (modelo.getTamaño() > 0 ? modelo.getTamaño() : 10);
-        int size = (tam - 1) * JuegoConfig.ESPACIO + JuegoConfig.MARGEN * 2;
-        return new Dimension(size, size);
     }
 }

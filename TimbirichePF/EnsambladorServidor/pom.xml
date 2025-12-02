@@ -23,6 +23,6 @@
         </dependency>
     </dependencies>
     <properties>
-        <exec.mainClass>itson.ensambladorservidor.EnsambladorServidor</exec.mainClass>
+        <exec.mainClass>ensamblador.EnsambladorServidor</exec.mainClass>
     </properties>
 </project>

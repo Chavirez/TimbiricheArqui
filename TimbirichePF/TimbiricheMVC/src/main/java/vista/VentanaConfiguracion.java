@@ -30,14 +30,18 @@ public class VentanaConfiguracion extends JDialog {
         // Carga valores por defecto
         List<String> avatares = Recursos.getAvataresDisponibles();
         List<Color> colores = Recursos.getColoresDisponibles();
+        
+        // Creamos el DTO mutable con valores iniciales seguros
         this.configMutable = new ConfiguracionJugador(
                 "Jugador",
-                avatares.isEmpty() ? "" : avatares.get(0),
-                colores.isEmpty() ? Color.BLACK : colores.get(0)
+                (avatares != null && !avatares.isEmpty()) ? avatares.get(0) : "",
+                (colores != null && !colores.isEmpty()) ? colores.get(0) : Color.BLACK
         );
 
         setLayout(new BorderLayout(10, 10));
-        panelConfigUI = new PanelConfiguracionJugador("Mi Perfil", configMutable, (JFrame) owner);
+        
+        // Casting seguro si asumimos que el owner siempre es un JFrame en esta app
+        panelConfigUI = new PanelConfiguracionJugador("Mi Perfil", configMutable, (owner instanceof JFrame) ? (JFrame) owner : null);
 
         JButton btnConfirmar = new JButton("Confirmar");
         btnConfirmar.addActionListener(e -> confirmarConfiguracion());
@@ -56,15 +60,15 @@ public class VentanaConfiguracion extends JDialog {
 
             // 2. Crea el Jugador DTO inmutable (record) y lo envía
             Jugador jugador = new Jugador(
-                    0, // ID 0, el servidor asignará el real
+                    0, // ID 0 indica que es un jugador por registrar/validar
                     configFinal.getNombre(),
                     configFinal.getAvatarPath(),
                     configFinal.getColor()
             );
 
-            // 3. Envía la solicitud al servidor para validación de duplicados
+            // 3. Envía la solicitud al servidor para validación (nombres duplicados, etc.)
+            // IMPORTANTE: No cerramos la ventana aquí. El Controlador la cerrará si la respuesta es exitosa.
             servicioJuego.enviarConfiguracionJugador(jugador);
-
 
         } catch (IllegalArgumentException ex) {
             JOptionPane.showMessageDialog(this, ex.getMessage(), "Error de Configuración", JOptionPane.ERROR_MESSAGE);
@@ -84,8 +88,8 @@ public class VentanaConfiguracion extends JDialog {
     }
 
     /**
-     * Este método ya no es usado por GestorCliente, pero
-     * se mantiene por si acaso.
+     * Este método se mantiene por compatibilidad, aunque la lógica de estado
+     * principal reside ahora en el Modelo/Controlador.
      */
     public boolean fueConfigurado() {
         return this.configurado;
