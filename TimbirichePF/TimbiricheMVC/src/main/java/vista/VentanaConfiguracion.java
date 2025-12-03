@@ -41,7 +41,7 @@ public class VentanaConfiguracion extends JDialog {
         setLayout(new BorderLayout(10, 10));
         
         // Casting seguro si asumimos que el owner siempre es un JFrame en esta app
-        panelConfigUI = new PanelConfiguracionJugador("Mi Perfil", configMutable, (owner instanceof JFrame) ? (JFrame) owner : null);
+        panelConfigUI = new PanelConfiguracionJugador(servicioJuego);
 
         JButton btnConfirmar = new JButton("Confirmar");
         btnConfirmar.addActionListener(e -> confirmarConfiguracion());
