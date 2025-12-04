@@ -12,7 +12,7 @@ public class JuegoConfig implements Serializable {
     private JuegoConfig() {
     }
 
-    public static final int TAMANIO_TABLERO = 2;
+    public static final int TAMANIO_TABLERO = 10;
     public static final int ANCHO_LINEA = 4;
     public static final int MARGEN = 25;
     public static final int ESPACIO = 50;

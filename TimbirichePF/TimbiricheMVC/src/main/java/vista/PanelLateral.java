@@ -19,15 +19,16 @@ public class PanelLateral extends JPanel {
 
     public PanelLateral(TableroModelo modelo) {
         this.modelo = modelo;
-        // Inicializa labelsPuntajes a un array vacío en lugar de null para evitar NPEs
         this.labelsPuntajes = new JLabel[0];
 
         setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
         setPreferredSize(new Dimension(250, 600));
+        setOpaque(false); // <--- IMPORTANTE: Fondo transparente
         setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
 
         panelJugadores = new JPanel();
         panelJugadores.setLayout(new BoxLayout(panelJugadores, BoxLayout.Y_AXIS));
+        panelJugadores.setOpaque(false); // <--- IMPORTANTE
         add(panelJugadores);
 
         add(Box.createVerticalGlue());
