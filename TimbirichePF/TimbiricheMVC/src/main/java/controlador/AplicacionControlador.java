@@ -81,22 +81,27 @@ public class AplicacionControlador implements IServicioJuego, Observador {
                 break;
         }
     }
-    
     private void verificarConfiguracionRequerida() {
-        Jugador local = modeloApp.getJugadorLocal();
-        
-        // CORRECCIÓN: Si configuracionPendiente es true, abrimos la ventana
-        // aunque el jugador ya tenga ID (por coincidencia de nombre por defecto).
-        if (configuracionPendiente || local == null || local.id() == 0) {
-            mostrarConfiguracion();
-        } 
-        // Solo cerramos si ya NO está pendiente y tenemos ID real
-        else if (ventanaConfig != null && ventanaConfig.isVisible()) {
-            ventanaConfig.dispose();
-            ventanaConfig = null;
-            if(frameJuego != null) frameJuego.setTitle("Timbiriche - " + local.nombre());
+            Jugador local = modeloApp.getJugadorLocal();
+
+            if (configuracionPendiente || local == null || local.id() == 0) {
+                mostrarConfiguracion();
+            } 
+
+            else {
+                if (ventanaConfiguracionGrafica != null && ventanaConfiguracionGrafica.isVisible()) {
+                    ventanaConfiguracionGrafica.dispose();
+                    ventanaConfiguracionGrafica = null;
+                }
+
+                if (ventanaConfig != null && ventanaConfig.isVisible()) {
+                    ventanaConfig.dispose();
+                    ventanaConfig = null;
+                }
+
+                if(frameJuego != null) frameJuego.setTitle("Timbiriche - " + local.nombre());
+            }
         }
-    }
 
     // --- GESTIÓN DE VENTANAS ---
     private void mostrarLobby() {

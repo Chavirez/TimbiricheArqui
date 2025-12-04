@@ -99,18 +99,21 @@ public class PanelConfiguracionJugador extends javax.swing.JFrame {
 
         if (servicioJuego != null) {
             servicioJuego.enviarConfiguracionJugador(jugadorFinal);
-            this.dispose();
+
         } else {
             System.out.println("Modo prueba: Jugador creado -> " + jugadorFinal);
-            this.dispose();
+
         }
     }
 
     private void actualizarAvatarUI() {
 
-        ImageIcon icon = new ImageIcon(config.getAvatarPath());
+    ImageIcon icon = Recursos.loadScaledAvatar(config.getAvatarPath(), 150, 150);
+
         if (icon != null) {
             lblAvatar.setIcon(icon);
+        } else {
+            System.err.println("No se pudo cargar la imagen: " + config.getAvatarPath());
         }
     }
 
