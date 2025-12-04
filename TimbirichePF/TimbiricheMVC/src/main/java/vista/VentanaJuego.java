@@ -57,6 +57,7 @@ this.setUndecorated(true);
         // Inicialización de Paneles
         // Asignamos a la variable de clase, no a una local
         this.panelLateralReal = new PanelLateral(modelo);
+        panelLateralReal.setServicioJuego(servicioJuego);
         panelLateral.add(this.panelLateralReal, BorderLayout.CENTER);
         
         TableroVista tableroVista = new TableroVista(modelo, controladorTablero);
