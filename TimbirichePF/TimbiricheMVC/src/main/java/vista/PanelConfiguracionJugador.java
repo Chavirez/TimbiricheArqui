@@ -79,7 +79,7 @@ public class PanelConfiguracionJugador extends javax.swing.JFrame {
     private void registrarJugador() {
         String nombre = fldNombre.getText().trim();
         
-        if (nombre.isEmpty()) {
+        if (nombre.isEmpty() || nombre.equals("Nombre de jugador")) {
             mostrarError("El nombre no puede estar vacío.");
             return;
         }
@@ -108,21 +108,19 @@ public class PanelConfiguracionJugador extends javax.swing.JFrame {
 
     private void actualizarAvatarUI() {
 
-        ImageIcon icon = Recursos.loadScaledAvatar(config.getAvatarPath(), lblSeleccionarAvatar.getWidth(), lblSeleccionarAvatar.getHeight());
+        ImageIcon icon = new ImageIcon(config.getAvatarPath());
         if (icon != null) {
-            lblSeleccionarAvatar.setIcon(icon);
-            lblSeleccionarAvatar.setText(""); // Quitar texto si tiene imagen
+            lblAvatar.setIcon(icon);
         }
     }
 
     private void actualizarColorUI() {
-        // Opción A: Pintar el fondo del label (requiere ser opaco)
-        lblSeleccionarColor.setOpaque(true);
-        lblSeleccionarColor.setBackground(config.getColor());
-        lblSeleccionarColor.setText("");
+
+
+        panelColor.setBackground(config.getColor());
+
         
-        // Opción B: Si prefieres un icono de color
-        // lblSeleccionarColor.setIcon(crearIconoDeColor(config.getColor()));
+
     }
     
     private void mostrarError(String msj) {
@@ -139,7 +137,6 @@ public class PanelConfiguracionJugador extends javax.swing.JFrame {
         lblRegistrar = new javax.swing.JLabel();
         lblSeleccionarColor = new javax.swing.JLabel();
         lblSeleccionarAvatar = new javax.swing.JLabel();
-        lblCerrar = new javax.swing.JLabel();
         lblFondo = new javax.swing.JLabel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
@@ -180,13 +177,7 @@ public class PanelConfiguracionJugador extends javax.swing.JFrame {
             }
         });
 
-        lblCerrar.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseClicked(java.awt.event.MouseEvent evt) {
-                lblCerrarMouseClicked(evt);
-            }
-        });
-
-        lblFondo.setIcon(new javax.swing.ImageIcon(getClass().getResource("/menus/PanelJugador.png"))); // NOI18N
+        lblFondo.setIcon(new javax.swing.ImageIcon(getClass().getResource("/menus/Panel Jugador.png"))); // NOI18N
 
         panelPrincipal.setLayer(fldNombre, javax.swing.JLayeredPane.DEFAULT_LAYER);
         panelPrincipal.setLayer(panelColor, javax.swing.JLayeredPane.DEFAULT_LAYER);
@@ -194,7 +185,6 @@ public class PanelConfiguracionJugador extends javax.swing.JFrame {
         panelPrincipal.setLayer(lblRegistrar, javax.swing.JLayeredPane.DEFAULT_LAYER);
         panelPrincipal.setLayer(lblSeleccionarColor, javax.swing.JLayeredPane.DEFAULT_LAYER);
         panelPrincipal.setLayer(lblSeleccionarAvatar, javax.swing.JLayeredPane.DEFAULT_LAYER);
-        panelPrincipal.setLayer(lblCerrar, javax.swing.JLayeredPane.DEFAULT_LAYER);
         panelPrincipal.setLayer(lblFondo, javax.swing.JLayeredPane.DEFAULT_LAYER);
 
         javax.swing.GroupLayout panelPrincipalLayout = new javax.swing.GroupLayout(panelPrincipal);
@@ -207,11 +197,6 @@ public class PanelConfiguracionJugador extends javax.swing.JFrame {
                     .addGap(0, 0, Short.MAX_VALUE)
                     .addComponent(lblFondo)
                     .addGap(0, 0, Short.MAX_VALUE)))
-            .addGroup(panelPrincipalLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, panelPrincipalLayout.createSequentialGroup()
-                    .addContainerGap(884, Short.MAX_VALUE)
-                    .addComponent(lblCerrar, javax.swing.GroupLayout.PREFERRED_SIZE, 89, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addContainerGap(27, Short.MAX_VALUE)))
             .addGroup(panelPrincipalLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                 .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, panelPrincipalLayout.createSequentialGroup()
                     .addContainerGap(633, Short.MAX_VALUE)
@@ -251,11 +236,6 @@ public class PanelConfiguracionJugador extends javax.swing.JFrame {
                     .addGap(0, 0, Short.MAX_VALUE)
                     .addComponent(lblFondo)
                     .addGap(0, 0, Short.MAX_VALUE)))
-            .addGroup(panelPrincipalLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, panelPrincipalLayout.createSequentialGroup()
-                    .addContainerGap(31, Short.MAX_VALUE)
-                    .addComponent(lblCerrar, javax.swing.GroupLayout.PREFERRED_SIZE, 83, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addContainerGap(886, Short.MAX_VALUE)))
             .addGroup(panelPrincipalLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                 .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, panelPrincipalLayout.createSequentialGroup()
                     .addContainerGap(379, Short.MAX_VALUE)
@@ -302,10 +282,6 @@ public class PanelConfiguracionJugador extends javax.swing.JFrame {
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
-    private void lblCerrarMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_lblCerrarMouseClicked
-        this.dispose();
-    }//GEN-LAST:event_lblCerrarMouseClicked
-
     private void fldNombreActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_fldNombreActionPerformed
 
     }//GEN-LAST:event_fldNombreActionPerformed
@@ -333,17 +309,16 @@ public class PanelConfiguracionJugador extends javax.swing.JFrame {
     
         Cursor cursor = new Cursor(Cursor.HAND_CURSOR);
 
-        lblCerrar.setCursor(cursor);
         lblRegistrar.setCursor(cursor);
         lblSeleccionarAvatar.setCursor(cursor);
         lblSeleccionarColor.setCursor(cursor);
         
         panelPrincipal.moveToBack(lblFondo);
-        panelPrincipal.moveToFront(lblCerrar);
         panelPrincipal.moveToFront(lblRegistrar);
         panelPrincipal.moveToFront(lblSeleccionarAvatar);
         panelPrincipal.moveToFront(lblSeleccionarColor);
 
+        lblFondo.setFocusable(true);
         
         String placeholder = "Nombre de jugador";
         fldNombre.setText(placeholder);
@@ -380,7 +355,6 @@ public class PanelConfiguracionJugador extends javax.swing.JFrame {
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JTextField fldNombre;
     private javax.swing.JLabel lblAvatar;
-    private javax.swing.JLabel lblCerrar;
     private javax.swing.JLabel lblFondo;
     private javax.swing.JLabel lblRegistrar;
     private javax.swing.JLabel lblSeleccionarAvatar;

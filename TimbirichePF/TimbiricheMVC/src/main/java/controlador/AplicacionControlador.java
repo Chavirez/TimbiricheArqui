@@ -16,6 +16,7 @@ public class AplicacionControlador implements IServicioJuego, Observador {
     private final AplicacionModelo modeloApp;
     private VentanaLobby ventanaLobby;
     private VentanaConfiguracion ventanaConfig;
+    private PanelConfiguracionJugador ventanaConfiguracionGrafica;
     private JFrame frameJuego;
 
     // BANDERA NUEVA: Fuerza la apertura de configuración tras conectar
@@ -142,13 +143,16 @@ public class AplicacionControlador implements IServicioJuego, Observador {
     }
 
     private void mostrarConfiguracion() {
-        if (ventanaConfig != null && ventanaConfig.isVisible()) {
-            ventanaConfig.toFront();
+        if (ventanaConfiguracionGrafica != null && ventanaConfiguracionGrafica.isVisible()) {
+            ventanaConfiguracionGrafica.toFront();
             return;
         }
-        ventanaConfig = new VentanaConfiguracion(frameJuego, this);
-        ventanaConfig.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE); 
-        ventanaConfig.setVisible(true);
+        // Pasamos 'this' (el controlador) porque implementa IServicioJuego
+        ventanaConfiguracionGrafica = new PanelConfiguracionJugador(this);
+
+        // Centrar en pantalla
+        ventanaConfiguracionGrafica.setLocationRelativeTo(null);
+        ventanaConfiguracionGrafica.setVisible(true);
     }
     
     private void mostrarResultados() {
@@ -171,7 +175,11 @@ public class AplicacionControlador implements IServicioJuego, Observador {
 
     private void cerrarVentanasDeJuego() {
         if (frameJuego != null) { frameJuego.dispose(); frameJuego = null; }
-        if (ventanaConfig != null) { ventanaConfig.dispose(); ventanaConfig = null; }
+        // Cerrar la nueva ventana gráfica
+        if (ventanaConfiguracionGrafica != null) { 
+            ventanaConfiguracionGrafica.dispose(); 
+            ventanaConfiguracionGrafica = null; 
+        }
     }
 
     private java.awt.Window getVentanaActiva() {

@@ -48,47 +48,40 @@
               </Group>
               <Group type="103" rootIndex="2" groupAlignment="0" attributes="0">
                   <Group type="102" alignment="1" attributes="0">
-                      <EmptySpace pref="884" max="32767" attributes="0"/>
-                      <Component id="lblCerrar" min="-2" pref="89" max="-2" attributes="0"/>
-                      <EmptySpace pref="27" max="32767" attributes="0"/>
-                  </Group>
-              </Group>
-              <Group type="103" rootIndex="3" groupAlignment="0" attributes="0">
-                  <Group type="102" alignment="1" attributes="0">
                       <EmptySpace pref="633" max="32767" attributes="0"/>
                       <Component id="lblSeleccionarAvatar" min="-2" pref="222" max="-2" attributes="0"/>
                       <EmptySpace pref="145" max="32767" attributes="0"/>
                   </Group>
               </Group>
-              <Group type="103" rootIndex="4" groupAlignment="0" attributes="0">
+              <Group type="103" rootIndex="3" groupAlignment="0" attributes="0">
                   <Group type="102" alignment="1" attributes="0">
                       <EmptySpace pref="636" max="32767" attributes="0"/>
                       <Component id="lblSeleccionarColor" min="-2" pref="223" max="-2" attributes="0"/>
                       <EmptySpace pref="141" max="32767" attributes="0"/>
                   </Group>
               </Group>
-              <Group type="103" rootIndex="5" groupAlignment="0" attributes="0">
+              <Group type="103" rootIndex="4" groupAlignment="0" attributes="0">
                   <Group type="102" alignment="1" attributes="0">
                       <EmptySpace pref="387" max="32767" attributes="0"/>
                       <Component id="lblRegistrar" min="-2" pref="236" max="-2" attributes="0"/>
                       <EmptySpace pref="377" max="32767" attributes="0"/>
                   </Group>
               </Group>
-              <Group type="103" rootIndex="6" groupAlignment="0" attributes="0">
+              <Group type="103" rootIndex="5" groupAlignment="0" attributes="0">
                   <Group type="102" alignment="1" attributes="0">
                       <EmptySpace pref="412" max="32767" attributes="0"/>
                       <Component id="lblAvatar" min="-2" pref="150" max="-2" attributes="0"/>
                       <EmptySpace pref="438" max="32767" attributes="0"/>
                   </Group>
               </Group>
-              <Group type="103" rootIndex="7" groupAlignment="0" attributes="0">
+              <Group type="103" rootIndex="6" groupAlignment="0" attributes="0">
                   <Group type="102" alignment="1" attributes="0">
                       <EmptySpace pref="380" max="32767" attributes="0"/>
                       <Component id="fldNombre" min="-2" pref="456" max="-2" attributes="0"/>
                       <EmptySpace pref="164" max="32767" attributes="0"/>
                   </Group>
               </Group>
-              <Group type="103" rootIndex="8" groupAlignment="0" attributes="0">
+              <Group type="103" rootIndex="7" groupAlignment="0" attributes="0">
                   <Group type="102" alignment="1" attributes="0">
                       <EmptySpace pref="411" max="32767" attributes="0"/>
                       <Component id="panelColor" min="-2" max="-2" attributes="0"/>
@@ -109,47 +102,40 @@
               </Group>
               <Group type="103" rootIndex="2" groupAlignment="0" attributes="0">
                   <Group type="102" alignment="1" attributes="0">
-                      <EmptySpace pref="31" max="32767" attributes="0"/>
-                      <Component id="lblCerrar" min="-2" pref="83" max="-2" attributes="0"/>
-                      <EmptySpace pref="886" max="32767" attributes="0"/>
-                  </Group>
-              </Group>
-              <Group type="103" rootIndex="3" groupAlignment="0" attributes="0">
-                  <Group type="102" alignment="1" attributes="0">
                       <EmptySpace pref="379" max="32767" attributes="0"/>
                       <Component id="lblSeleccionarAvatar" min="-2" pref="100" max="-2" attributes="0"/>
                       <EmptySpace pref="521" max="32767" attributes="0"/>
                   </Group>
               </Group>
-              <Group type="103" rootIndex="4" groupAlignment="0" attributes="0">
+              <Group type="103" rootIndex="3" groupAlignment="0" attributes="0">
                   <Group type="102" alignment="1" attributes="0">
                       <EmptySpace pref="576" max="32767" attributes="0"/>
                       <Component id="lblSeleccionarColor" min="-2" pref="100" max="-2" attributes="0"/>
                       <EmptySpace pref="324" max="32767" attributes="0"/>
                   </Group>
               </Group>
-              <Group type="103" rootIndex="5" groupAlignment="0" attributes="0">
+              <Group type="103" rootIndex="4" groupAlignment="0" attributes="0">
                   <Group type="102" alignment="1" attributes="0">
                       <EmptySpace pref="728" max="32767" attributes="0"/>
                       <Component id="lblRegistrar" min="-2" pref="103" max="-2" attributes="0"/>
                       <EmptySpace pref="169" max="32767" attributes="0"/>
                   </Group>
               </Group>
-              <Group type="103" rootIndex="6" groupAlignment="0" attributes="0">
+              <Group type="103" rootIndex="5" groupAlignment="0" attributes="0">
                   <Group type="102" alignment="1" attributes="0">
                       <EmptySpace pref="360" max="32767" attributes="0"/>
                       <Component id="lblAvatar" min="-2" pref="150" max="-2" attributes="0"/>
                       <EmptySpace pref="490" max="32767" attributes="0"/>
                   </Group>
               </Group>
-              <Group type="103" rootIndex="7" groupAlignment="0" attributes="0">
+              <Group type="103" rootIndex="6" groupAlignment="0" attributes="0">
                   <Group type="102" alignment="1" attributes="0">
                       <EmptySpace pref="189" max="32767" attributes="0"/>
                       <Component id="fldNombre" min="-2" pref="53" max="-2" attributes="0"/>
                       <EmptySpace pref="758" max="32767" attributes="0"/>
                   </Group>
               </Group>
-              <Group type="103" rootIndex="8" groupAlignment="0" attributes="0">
+              <Group type="103" rootIndex="7" groupAlignment="0" attributes="0">
                   <Group type="102" alignment="1" attributes="0">
                       <EmptySpace pref="556" max="32767" attributes="0"/>
                       <Component id="panelColor" min="-2" max="-2" attributes="0"/>
@@ -202,15 +188,10 @@
             <EventHandler event="mouseClicked" listener="java.awt.event.MouseListener" parameters="java.awt.event.MouseEvent" handler="lblSeleccionarAvatarMouseClicked"/>
           </Events>
         </Component>
-        <Component class="javax.swing.JLabel" name="lblCerrar">
-          <Events>
-            <EventHandler event="mouseClicked" listener="java.awt.event.MouseListener" parameters="java.awt.event.MouseEvent" handler="lblCerrarMouseClicked"/>
-          </Events>
-        </Component>
         <Component class="javax.swing.JLabel" name="lblFondo">
           <Properties>
             <Property name="icon" type="javax.swing.Icon" editor="org.netbeans.modules.form.editors2.IconEditor">
-              <Image iconType="3" name="/menus/PanelJugador.png"/>
+              <Image iconType="3" name="/menus/Panel Jugador.png"/>
             </Property>
           </Properties>
         </Component>
