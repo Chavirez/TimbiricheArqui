@@ -5,8 +5,12 @@
 package vista;
 
 import PlantillaFROM.*;
+import controlador.TableroControlador;
+import interfaces.IServicioJuego;
 import vista.*;
 import java.awt.Cursor;
+import javax.swing.JLayeredPane;
+import modelo.TableroModelo;
 import utilidades.MoverVentana;
 
 /**
@@ -14,13 +18,27 @@ import utilidades.MoverVentana;
  * @author santi
  */
 public class VentanaJuego extends javax.swing.JFrame {
+    
+    private final PanelPrincipal panelPrincipall;
 
-    /**
-     * Creates new form VentanaLobbyy
-     */
-    public VentanaJuego() {
+    public VentanaJuego(TableroModelo modelo, TableroControlador controladorTablero, IServicioJuego servicioJuego) {
         this.setUndecorated(true);
+        
         initComponents();
+        
+        this.panelPrincipall = new PanelPrincipal(modelo, controladorTablero);
+        
+        if (this.panelPrincipall.getPanelLateral() != null) {
+                    panelLateral.add(panelPrincipall.getPanelLateral());
+                    this.panelPrincipall.getPanelLateral().setServicioJuego(servicioJuego);
+                }
+        
+        panelJuego.add(panelPrincipall.getTableroVista());
+        setContentPane(this.panelPrincipall);
+
+        // 5. Ajustar tamaño automáticamente a los componentes
+        
+        
         configurarLabels();
         
         new MoverVentana(this, lblFondo);
@@ -36,10 +54,34 @@ public class VentanaJuego extends javax.swing.JFrame {
     private void initComponents() {
 
         panelPrincipal = new javax.swing.JLayeredPane();
+        panelLateral = new javax.swing.JPanel();
+        panelJuego = new javax.swing.JPanel();
         lblEngranaje = new javax.swing.JLabel();
         lblFondo = new javax.swing.JLabel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+
+        javax.swing.GroupLayout panelLateralLayout = new javax.swing.GroupLayout(panelLateral);
+        panelLateral.setLayout(panelLateralLayout);
+        panelLateralLayout.setHorizontalGroup(
+            panelLateralLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGap(0, 308, Short.MAX_VALUE)
+        );
+        panelLateralLayout.setVerticalGroup(
+            panelLateralLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGap(0, 868, Short.MAX_VALUE)
+        );
+
+        javax.swing.GroupLayout panelJuegoLayout = new javax.swing.GroupLayout(panelJuego);
+        panelJuego.setLayout(panelJuegoLayout);
+        panelJuegoLayout.setHorizontalGroup(
+            panelJuegoLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGap(0, 502, Short.MAX_VALUE)
+        );
+        panelJuegoLayout.setVerticalGroup(
+            panelJuegoLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGap(0, 503, Short.MAX_VALUE)
+        );
 
         lblEngranaje.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
@@ -49,6 +91,8 @@ public class VentanaJuego extends javax.swing.JFrame {
 
         lblFondo.setIcon(new javax.swing.ImageIcon(getClass().getResource("/menus/Partida.png"))); // NOI18N
 
+        panelPrincipal.setLayer(panelLateral, javax.swing.JLayeredPane.DEFAULT_LAYER);
+        panelPrincipal.setLayer(panelJuego, javax.swing.JLayeredPane.DEFAULT_LAYER);
         panelPrincipal.setLayer(lblEngranaje, javax.swing.JLayeredPane.DEFAULT_LAYER);
         panelPrincipal.setLayer(lblFondo, javax.swing.JLayeredPane.DEFAULT_LAYER);
 
@@ -66,6 +110,16 @@ public class VentanaJuego extends javax.swing.JFrame {
                 .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, panelPrincipalLayout.createSequentialGroup()
                     .addGap(0, 923, Short.MAX_VALUE)
                     .addComponent(lblEngranaje, javax.swing.GroupLayout.PREFERRED_SIZE, 77, javax.swing.GroupLayout.PREFERRED_SIZE)))
+            .addGroup(panelPrincipalLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, panelPrincipalLayout.createSequentialGroup()
+                    .addContainerGap(660, Short.MAX_VALUE)
+                    .addComponent(panelLateral, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addContainerGap(32, Short.MAX_VALUE)))
+            .addGroup(panelPrincipalLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, panelPrincipalLayout.createSequentialGroup()
+                    .addContainerGap(80, Short.MAX_VALUE)
+                    .addComponent(panelJuego, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addContainerGap(418, Short.MAX_VALUE)))
         );
         panelPrincipalLayout.setVerticalGroup(
             panelPrincipalLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -80,6 +134,16 @@ public class VentanaJuego extends javax.swing.JFrame {
                     .addContainerGap()
                     .addComponent(lblEngranaje, javax.swing.GroupLayout.PREFERRED_SIZE, 77, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addContainerGap(917, Short.MAX_VALUE)))
+            .addGroup(panelPrincipalLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, panelPrincipalLayout.createSequentialGroup()
+                    .addContainerGap(103, Short.MAX_VALUE)
+                    .addComponent(panelLateral, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addContainerGap(29, Short.MAX_VALUE)))
+            .addGroup(panelPrincipalLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, panelPrincipalLayout.createSequentialGroup()
+                    .addContainerGap(284, Short.MAX_VALUE)
+                    .addComponent(panelJuego, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addContainerGap(213, Short.MAX_VALUE)))
         );
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
@@ -112,7 +176,11 @@ public class VentanaJuego extends javax.swing.JFrame {
         
         panelPrincipal.moveToBack(lblFondo);
         panelPrincipal.moveToFront(lblEngranaje);
+        panelPrincipal.moveToFront(panelLateral);
+        panelPrincipal.moveToFront(panelJuego);
 
+        panelJuego.setOpaque(true);
+        panelLateral.setOpaque(true);
         
         this.revalidate();
         this.repaint();
@@ -121,6 +189,8 @@ public class VentanaJuego extends javax.swing.JFrame {
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JLabel lblEngranaje;
     private javax.swing.JLabel lblFondo;
+    private javax.swing.JPanel panelJuego;
+    private javax.swing.JPanel panelLateral;
     private javax.swing.JLayeredPane panelPrincipal;
     // End of variables declaration//GEN-END:variables
 }

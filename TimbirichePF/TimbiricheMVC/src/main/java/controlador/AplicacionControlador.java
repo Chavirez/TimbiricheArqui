@@ -112,39 +112,31 @@ public class AplicacionControlador implements IServicioJuego, Observador {
         ventanaLobby.setVisible(true);
     }
 
-    private void mostrarJuego() {
+private void mostrarJuego() {
+        // 1. Cerrar el Lobby si está abierto
         if (ventanaLobby != null) {
             ventanaLobby.dispose();
             ventanaLobby = null;
         }
 
+        // Si ya existe la ventana de juego, no la volvemos a crear
         if (frameJuego != null && frameJuego.isVisible()) return;
 
         TableroModelo modeloTablero = modeloApp.getTableroModelo();
         if (modeloTablero == null) return;
 
-        // Inyección de dependencias correcta
+        // 2. Crear el controlador del tablero (lógica de clics)
         TableroControlador tableroControlador = new TableroControlador(modeloTablero, modeloApp);
-        PanelPrincipal panelPrincipal = new PanelPrincipal(modeloTablero, tableroControlador);
-        
-        // Conectar panel lateral con el servicio
-        if (panelPrincipal.getPanelLateral() != null) {
-            panelPrincipal.getPanelLateral().setServicioJuego(this);
-        }
 
-        frameJuego = new JFrame("Timbiriche - Conectando...");
-        frameJuego.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        frameJuego.setContentPane(panelPrincipal);
-        frameJuego.pack();
-        frameJuego.setLocationRelativeTo(null);
-        frameJuego.setVisible(true);
+        // 3. CREAR LA NUEVA VENTANA DEDICADA
+        // Pasamos 'this' porque el Controlador implementa IServicioJuego
+        VentanaJuego ventanaJuego = new VentanaJuego(modeloTablero, tableroControlador, this);
         
-        frameJuego.addWindowListener(new WindowAdapter() {
-            @Override
-            public void windowClosing(WindowEvent e) {
-                System.exit(0);
-            }
-        });
+        // Asignamos a la variable global frameJuego (que es de tipo JFrame)
+        this.frameJuego = ventanaJuego;
+        
+        // 4. Mostrar
+        frameJuego.setVisible(true);
     }
 
     private void mostrarConfiguracion() {
