@@ -32,15 +32,20 @@ public class VentanaJuego extends javax.swing.JFrame implements Observador {
     private JLabel lblTurno;
     private JLabel lblCodigoSala;
     private JLabel lblSeparador;
+    private PanelLateral panelLateralReal;
 
     public VentanaJuego(TableroModelo modelo, TableroControlador controladorTablero, IServicioJuego servicioJuego) {
     
-        this.setUndecorated(true);
+this.setUndecorated(true);
         initComponents();
         this.getContentPane().setBackground(new java.awt.Color(45, 40, 90));
         
         this.modelo = modelo;
+        
+        // CORRECCIÓN 2: ¡Suscribirse al modelo! Sin esto, actualizar() nunca se ejecuta.
+        this.modelo.agregarObservador(this);
 
+        // Configuración de Layouts y Transparencia
         panelJuego.setLayout(new BorderLayout());
         panelLateral.setLayout(new BorderLayout());
         panelNorte.setLayout(new BorderLayout());
@@ -49,71 +54,71 @@ public class VentanaJuego extends javax.swing.JFrame implements Observador {
         panelLateral.setOpaque(false);
         panelNorte.setOpaque(false);
 
-        PanelLateral panelLateralReal = new PanelLateral(modelo);
-        panelLateral.add(panelLateralReal);
+        // Inicialización de Paneles
+        // Asignamos a la variable de clase, no a una local
+        this.panelLateralReal = new PanelLateral(modelo);
+        panelLateral.add(this.panelLateralReal, BorderLayout.CENTER);
         
         TableroVista tableroVista = new TableroVista(modelo, controladorTablero);
         panelJuego.add(tableroVista, BorderLayout.CENTER);
  
-
+        configurarPanelNorte(); 
         configurarLabels();
         new MoverVentana(this, lblFondo);
+        
+        actualizar();
     }
 
     public void configurarPanelNorte(){
         
-        lblTurno = new JLabel(" ", SwingConstants.LEFT);
+lblTurno = new JLabel("Esperando...", SwingConstants.LEFT);
         lblTurno.setFont(new Font("Arial", Font.BOLD, 24));
+        lblTurno.setForeground(Color.BLACK); // Color blanco para que se vea en fondo oscuro
         lblTurno.setBorder(BorderFactory.createEmptyBorder(0, 20, 0, 0));
-        panelNorte.add(lblTurno, BorderLayout.CENTER);
+        panelNorte.add(lblTurno, BorderLayout.WEST); // BorderLayout.WEST queda mejor aquí
 
-        lblSeparador = new JLabel("- - - - -");
-        lblSeparador.setFont(new Font("Arial", Font.BOLD, 24));
-        lblSeparador.setBorder(BorderFactory.createEmptyBorder(0, 20, 0, 20));
-        panelNorte.add(lblSeparador, BorderLayout.CENTER);
-
-        lblCodigoSala = new JLabel("Código: ---");
+        // El código de sala a la derecha
+        lblCodigoSala = new JLabel("Código: ---", SwingConstants.RIGHT);
         lblCodigoSala.setFont(new Font("Arial", Font.BOLD, 24));
+        lblCodigoSala.setForeground(Color.BLACK);
         lblCodigoSala.setBorder(BorderFactory.createEmptyBorder(0, 0, 0, 20));
-        panelNorte.add(lblCodigoSala, BorderLayout.CENTER);
+        panelNorte.add(lblCodigoSala, BorderLayout.EAST);
             }
     
-    @Override
+@Override
     public void actualizar() {
-        // Ejecutar en el hilo de eventos para la seguridad de Swing
         SwingUtilities.invokeLater(() -> {
+            
+            if (this.panelLateralReal != null) {
+                this.panelLateralReal.actualizarUI();
+            }
 
-            // 1. Actualizar Código de Sala
-            // Verificamos si el modelo tiene el método getCodigoSala, si no, manejamos el caso
             String codigo = (modelo.getCodigoSala() != null) ? modelo.getCodigoSala() : "---";
-            lblCodigoSala.setText("Código: " + codigo);
+            if (lblCodigoSala != null) lblCodigoSala.setText("Código: " + codigo);
 
             if (modelo.getEstadoActual() == null) {
-                lblTurno.setText("Esperando estado del servidor...");
-                lblCodigoSala.setText("Código: ---");
+                if (lblTurno != null) lblTurno.setText("Conectando...");
                 return;
             }
 
-            // 2. Lógica de Turno/Estado
-            if (modelo.isJuegoTerminado()) {
-                lblTurno.setText("¡Fin del Juego!");
-                lblCodigoSala.setText("");
-                lblTurno.setForeground(Color.BLACK);
-            } else {
-                Jugador actual = modelo.getJugadorActual();
-                if (actual != null) {
-                    // Turno en curso
-                    lblTurno.setText("Turno: " + actual.nombre());
-                    lblTurno.setForeground(actual.color());
+            if (lblTurno != null) {
+                if (modelo.isJuegoTerminado()) {
+                    lblTurno.setText("¡Fin del Juego!");
+                    lblTurno.setForeground(Color.YELLOW);
                 } else {
-                    // Sala de Espera (Partida no iniciada)
-                    lblTurno.setText("Sala de Espera");
-                    lblTurno.setForeground(Color.BLACK);
+                    Jugador actual = modelo.getJugadorActual();
+                    if (actual != null) {
+                        lblTurno.setText("Turno: " + actual.nombre());
+                        lblTurno.setForeground(actual.color());
+                    } else {
+                        lblTurno.setText("Sala de Espera");
+                        lblTurno.setForeground(Color.WHITE);
+                    }
                 }
             }
-
         });
     }
+    
     @SuppressWarnings("unchecked")
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
