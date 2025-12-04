@@ -10,6 +10,7 @@ import java.awt.Cursor;
 import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
 import javax.swing.JOptionPane;
+import utilidades.MoverVentana;
 
 
 public class VentanaLobby extends javax.swing.JFrame {
@@ -23,6 +24,9 @@ public class VentanaLobby extends javax.swing.JFrame {
         this.setUndecorated(true);
         initComponents();
         configurarLabels();
+        
+        new MoverVentana(this, lblFondo);
+        
     }
 
     /**
@@ -52,7 +56,6 @@ public class VentanaLobby extends javax.swing.JFrame {
             }
         });
 
-        lblUnirse.setText("jLabel1");
         lblUnirse.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
                 lblUnirseMouseClicked(evt);

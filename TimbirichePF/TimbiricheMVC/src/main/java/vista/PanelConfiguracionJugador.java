@@ -17,6 +17,7 @@ import java.util.List;
 import javax.swing.ImageIcon;
 import javax.swing.JColorChooser;
 import javax.swing.JOptionPane;
+import utilidades.MoverVentana;
 import utilidades.Recursos;
 
 /**
@@ -36,6 +37,8 @@ public class PanelConfiguracionJugador extends javax.swing.JFrame {
         initComponents();
         inicializarComponentesLogicos();
         configurarLabels();
+        
+        new MoverVentana(this, lblFondo);
     }
 
     private void inicializarComponentesLogicos() {
