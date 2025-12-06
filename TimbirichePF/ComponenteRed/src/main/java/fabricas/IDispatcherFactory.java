@@ -6,6 +6,7 @@ import java.io.BufferedReader;
 import java.io.PrintWriter;
 import emisor.EmisorDeRed;
 import interfaz.IReceptorExterno;
+import receptor.ComponentesRecepcion;
 import receptor.ReceptorDeRed;
 
 public interface IDispatcherFactory {
@@ -25,5 +26,5 @@ public interface IDispatcherFactory {
      * @param alDesconectar
      * @return 
      */
-    ReceptorDeRed crearReceptor(BufferedReader lector, IReceptorExterno procesador, Runnable alDesconectar);
+    public ComponentesRecepcion crearSistemaRecepcion(BufferedReader lector, IReceptorExterno procesadorExterno, Runnable alDesconectar);
 }

@@ -17,6 +17,7 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import receptor.ComponentesRecepcion;
 
 public class EnsambladorServidor {
 
@@ -55,13 +56,14 @@ public class EnsambladorServidor {
 
 
                     EmisorDeRed emisor = fabrica.crearEmisor(escritor);
-                    ReceptorDeRed receptor = fabrica.crearReceptor(lector, (IReceptorExterno) procesador, alDesconectar);
+                    ComponentesRecepcion rx = fabrica.crearSistemaRecepcion(lector, procesador, alDesconectar);
 
                     procesador.conectarDespachador((IDispatcher) emisor);            
                     procesador.conectarReceptorDeAplicacion((ITuberiaEntrada) manejador); 
 
                     poolDeHilos.execute(emisor);
-                    poolDeHilos.execute(receptor);
+                    poolDeHilos.execute(rx.lector);     
+                    poolDeHilos.execute(rx.procesador);  
 
                 } catch (IOException e) {
                     System.err.println("[ENSAMBLADOR] Error al configurar cliente: " + e.getMessage());

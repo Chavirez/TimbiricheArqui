@@ -9,15 +9,12 @@ import entidades.Jugador;
 import interfaces.IServicioJuego;
 import java.awt.BorderLayout;
 import java.awt.Color;
-import vista.*;
 import java.awt.Cursor;
 import java.awt.Font;
 import javax.swing.BorderFactory;
 import javax.swing.JLabel;
-import javax.swing.JLayeredPane;
 import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
-import modelo.TableroModelo;
 import observador.Observador;
 
 /**
@@ -96,7 +93,7 @@ lblTurno = new JLabel("Esperando...", SwingConstants.LEFT);
             if (lblCodigoSala != null) lblCodigoSala.setText("Código: " + codigo);
 
             if (controladorTablero.getEstadoActual() == null) {
-                if (lblTurno != null) lblTurno.setText("Conectando...");
+                if (lblTurno != null) lblTurno.setText("Conectando..." + " - ");
                 return;
             }
 
@@ -107,11 +104,11 @@ lblTurno = new JLabel("Esperando...", SwingConstants.LEFT);
                 } else {
                     Jugador actual = controladorTablero.getJugadorActual();
                     if (actual != null) {
-                        lblTurno.setText("Turno: " + actual.nombre());
+                        lblTurno.setText("Turno: " + actual.nombre() + " - ");
                         lblTurno.setForeground(actual.color());
                     } else {
-                        lblTurno.setText("Sala de Espera");
-                        lblTurno.setForeground(Color.WHITE);
+                        lblTurno.setText("Sala de Espera"  + " - ");
+                        lblTurno.setForeground(Color.BLACK);
                     }
                 }
             }

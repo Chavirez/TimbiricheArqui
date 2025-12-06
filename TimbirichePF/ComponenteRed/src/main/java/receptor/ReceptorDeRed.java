@@ -1,22 +1,16 @@
 package receptor;
 
-import interfaz.IReceptorExterno;
 import java.io.BufferedReader;
-
+import utilerias.ColaDeMensajes;
 
 public class ReceptorDeRed implements Runnable {
 
-    private IReceptorExterno receptorExterno;
-    private BufferedReader lector; 
-    private final Runnable alDesconectar; // CAMPO AGREGADO
+    private final ColaDeMensajes colaEntrada;
+    private final BufferedReader lector; 
+    private final Runnable alDesconectar;
 
-    /**
-     * @param receptorExterno La capa de arquitectura a la que notificar.
-     * @param lector El stream de entrada del Socket único.
-     * @param alDesconectar Accion a ejecutar cuando el hilo finaliza (ej. desconexion).
-     */
-    public ReceptorDeRed(IReceptorExterno receptorExterno, BufferedReader lector, Runnable alDesconectar) {
-        this.receptorExterno = receptorExterno;
+    public ReceptorDeRed(ColaDeMensajes colaEntrada, BufferedReader lector, Runnable alDesconectar) {
+        this.colaEntrada = colaEntrada;
         this.lector = lector;
         this.alDesconectar = alDesconectar;
     }
@@ -24,20 +18,15 @@ public class ReceptorDeRed implements Runnable {
     @Override
     public void run() {
         try {
-            System.out.println("[RED-RECEPTOR] Hilo iniciado. Escuchando mensajes.");
-            
             String mensajeEntrante;
             while ((mensajeEntrante = lector.readLine()) != null) {
-                System.out.println("[RED-RECEPTOR] Recibido de Servidor: " + mensajeEntrante);
-                this.receptorExterno.alRecibirMensaje(mensajeEntrante);
+                System.out.println("[RED-RECEPTOR] Encolando mensaje...");
+                this.colaEntrada.agregar(mensajeEntrante);
             }
         } catch (Exception e) {
-            System.err.println("[RED-RECEPTOR] Desconectado o error de conexión: " + e.getMessage());
+            System.err.println("[RED-RECEPTOR] Error: " + e.getMessage());
         } finally {
-            System.out.println("[RED-RECEPTOR] Hilo terminado.");
-            if (alDesconectar != null) {
-                alDesconectar.run();
-            }
+            if (alDesconectar != null) alDesconectar.run();
         }
     }
 }

@@ -98,6 +98,7 @@ public class PanelLateral extends JPanel {
         panel.add(lblAvatar, BorderLayout.WEST);
         panel.add(lblNombre, BorderLayout.CENTER);
         panel.add(labelsPuntajes[index], BorderLayout.EAST);
+        panel.setOpaque(false);
         return panel;
     }
 

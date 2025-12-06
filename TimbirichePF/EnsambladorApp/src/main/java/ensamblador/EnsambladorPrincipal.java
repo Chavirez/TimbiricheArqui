@@ -25,6 +25,7 @@ import controlador.AplicacionControlador;
 
 import javax.swing.JOptionPane;
 import javax.swing.SwingUtilities;
+import receptor.ComponentesRecepcion;
 
 public class EnsambladorPrincipal {
 
@@ -49,7 +50,9 @@ public class EnsambladorPrincipal {
         
         IDispatcherFactory fabrica = new SocketDispatcherFactory();
         EmisorDeRed emisor = fabrica.crearEmisor(escritor);
-        ReceptorDeRed receptor = fabrica.crearReceptor(lector, (IReceptorExterno) procesador, () -> System.exit(0));
+        
+        ComponentesRecepcion rx = fabrica.crearSistemaRecepcion(lector, procesador,() -> System.exit(0));
+
 
         procesador.conectarDespachador((IDispatcher) emisor);
 
@@ -59,7 +62,8 @@ public class EnsambladorPrincipal {
         procesador.conectarReceptorDeAplicacion((ITuberiaEntrada) gestorJuegoBackend);
 
         new Thread(emisor).start();
-        new Thread(receptor).start();
+        new Thread(rx.lector).start();
+        new Thread(rx.procesador).start();
 
         AplicacionModelo appModelo = new AplicacionModelo((IGestorJuego) gestorJuegoBackend);
 
