@@ -1,29 +1,29 @@
 package vista;
 
+import controlador.TableroControlador;
 import utilidades.Recursos;
 import entidades.Jugador;
 import interfaces.IServicioJuego;
 import javax.swing.*;
 import java.awt.*;
 import java.util.List;
-import modelo.TableroModelo;
 
 public class PanelLateral extends JPanel {
 
-    private final TableroModelo modelo;
+    private final TableroControlador controlador;
     private JLabel[] labelsPuntajes;
     private JPanel panelJugadores;
 
     private JButton btnIniciarPartida;
     private IServicioJuego servicioJuego; // Referencia al gestor
 
-    public PanelLateral(TableroModelo modelo) {
-        this.modelo = modelo;
+    public PanelLateral(TableroControlador controlador) {
+        this.controlador = controlador;
         this.labelsPuntajes = new JLabel[0];
 
         setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
         setPreferredSize(new Dimension(250, 600));
-        setOpaque(false); // <--- IMPORTANTE: Fondo transparente
+        setOpaque(false); 
         setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
 
         panelJugadores = new JPanel();
@@ -33,7 +33,6 @@ public class PanelLateral extends JPanel {
 
         add(Box.createVerticalGlue());
 
-        // Botón Iniciar Partida
         btnIniciarPartida = new JButton("Iniciar Partida");
         btnIniciarPartida.setAlignmentX(Component.CENTER_ALIGNMENT);
         btnIniciarPartida.setVisible(false);
@@ -52,24 +51,18 @@ public class PanelLateral extends JPanel {
         add(btnSalir);
     }
     
-    // Método para inyectar la dependencia del controlador/servicio
     public void setServicioJuego(IServicioJuego servicioJuego) {
         this.servicioJuego = servicioJuego;
     }
 
-    // Constructor auxiliar si se requiere pasar el servicio al inicio
-    public PanelLateral(TableroModelo modelo, IServicioJuego servicioJuego) {
-        this(modelo);
-        this.servicioJuego = servicioJuego;
-    }
 
     private void inicializarPanelesJugadores() {
         panelJugadores.removeAll();
-        List<Jugador> jugadores = modelo.getJugadores();
+        List<Jugador> jugadores = controlador.getJugadores();
 
         if (jugadores == null || jugadores.isEmpty()) {
             panelJugadores.add(new JLabel("Esperando jugadores..."));
-            this.labelsPuntajes = new JLabel[0]; // Asegura que sea un array no nulo
+            this.labelsPuntajes = new JLabel[0]; 
             panelJugadores.revalidate();
             panelJugadores.repaint();
             return;
@@ -112,8 +105,8 @@ public class PanelLateral extends JPanel {
      * Método llamado por PanelPrincipal (o el Observador) al actualizarse el Modelo.
      */
     public void actualizarUI() {
-        Jugador jugadorActualDelModelo = modelo.getJugadorActual();
-        List<Jugador> jugadores = modelo.getJugadores();
+        Jugador jugadorActualDelModelo = controlador.getJugadorActual();
+        List<Jugador> jugadores = controlador.getJugadores();
         int jugadoresSize = (jugadores != null) ? jugadores.size() : 0;
         
         // Si cambió la cantidad de jugadores o es la primera carga con datos
@@ -123,7 +116,7 @@ public class PanelLateral extends JPanel {
         }
 
         // Actualizar los textos de los puntajes
-        int[] puntajes = modelo.getPuntajes();
+        int[] puntajes = controlador.getPuntajes();
         if (puntajes != null) {
             int limite = Math.min(puntajes.length, labelsPuntajes.length);
             for (int i = 0; i < limite; i++) {
@@ -136,7 +129,7 @@ public class PanelLateral extends JPanel {
         // Lógica para mostrar el botón de inicio:
         // Solo si la partida no ha iniciado (jugadorActual es null), no ha terminado, y hay al menos un jugador.
         // Nota: Ajusta 'jugadoresSize >= 2' si requieres mínimo 2 jugadores.
-        if (jugadorActualDelModelo == null && !modelo.isJuegoTerminado() && jugadoresSize >= 1) {
+        if (jugadorActualDelModelo == null && !controlador.isJuegoTerminado() && jugadoresSize >= 1) {
             btnIniciarPartida.setVisible(true);
         } else {
             btnIniciarPartida.setVisible(false);

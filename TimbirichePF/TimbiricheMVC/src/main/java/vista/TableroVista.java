@@ -11,14 +11,12 @@ import java.awt.*;
 
 public class TableroVista extends JPanel implements Observador {
 
-    private final TableroModelo modelo;
     private final TableroControlador controlador;
 
-    public TableroVista(TableroModelo modelo, TableroControlador controlador) {
-        this.modelo = modelo;
+    public TableroVista(TableroControlador controlador) {
         this.controlador = controlador;
 
-        this.modelo.agregarObservador(this);
+        controlador.suscribirTableroVista(this);
         setBackground(Color.WHITE);
 
         // Conectar el controlador como MouseListener (Inyección de dependencias)
@@ -36,7 +34,7 @@ public class TableroVista extends JPanel implements Observador {
     @Override
     public Dimension getPreferredSize() {
         // Cálculo dinámico del tamaño basado en la configuración
-        int tam = (modelo.getTamaño() > 0 ? modelo.getTamaño() : 10);
+        int tam = (controlador.getTamanio() > 0 ? controlador.getTamanio() : 10);
         int size = (tam - 1) * JuegoConfig.ESPACIO + JuegoConfig.MARGEN * 2;
         return new Dimension(size, size);
     }
@@ -46,7 +44,7 @@ public class TableroVista extends JPanel implements Observador {
         super.paintComponent(g);
 
         // Validación inicial para evitar errores de dibujado si no hay datos
-        if (modelo.getTamaño() == 0) {
+        if (controlador.getTamanio() == 0) {
             g.drawString("Conectando con el servidor...", 50, 50);
             return;
         }
@@ -57,13 +55,13 @@ public class TableroVista extends JPanel implements Observador {
         // Configuración de trazo redondeado
         g2.setStroke(new BasicStroke(JuegoConfig.ANCHO_LINEA, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND));
 
-        int tamaño = modelo.getTamaño();
+        int tamaño = controlador.getTamanio();
 
         // Obtenemos las estructuras de datos del modelo actual
-        int[][] cuadrados = modelo.getCuadrados();
-        int[][] lineasH = modelo.getLineasHorizontales();
-        int[][] lineasV = modelo.getLineasVerticales();
-        Point puntoSeleccionado = modelo.getPuntoSeleccionado();
+        int[][] cuadrados = controlador.getCuadrados();
+        int[][] lineasH = controlador.getLineasHorizontales();
+        int[][] lineasV = controlador.getLineasVerticales();
+        Point puntoSeleccionado = controlador.getPuntoSeleccionado();
 
         // 1. Dibujar Cuadrados (Rellenos)
         for (int i = 0; i < tamaño - 1; i++) {
@@ -135,7 +133,7 @@ public class TableroVista extends JPanel implements Observador {
 
     // Método auxiliar para obtener el color de forma segura
     private Color getColorDeJugador(int jugadorId) {
-        Jugador jugador = modelo.getJugadorPorId(jugadorId);
+        Jugador jugador = controlador.getJugadorPorId(jugadorId);
         return (jugador != null) ? jugador.color() : Color.BLACK;
     }
 }

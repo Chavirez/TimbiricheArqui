@@ -19,7 +19,6 @@ public class AplicacionControlador implements IServicioJuego, Observador {
     private PanelConfiguracionJugador ventanaConfiguracionGrafica;
     private JFrame frameJuego;
 
-    // BANDERA NUEVA: Fuerza la apertura de configuración tras conectar
     private boolean configuracionPendiente = false;
 
     public AplicacionControlador(AplicacionModelo modeloApp) {
@@ -33,20 +32,20 @@ public class AplicacionControlador implements IServicioJuego, Observador {
 
     @Override
     public void crearPartida() {
-        configuracionPendiente = true; // Marcamos que falta configurar
+        configuracionPendiente = true; 
         modeloApp.crearPartida();
     }
 
     @Override
     public void unirseAPartida(String codigo) {
-        configuracionPendiente = true; // Marcamos que falta configurar
+        configuracionPendiente = true; 
         modeloApp.unirseAPartida(codigo);
     }
 
     @Override
     public void enviarConfiguracionJugador(Jugador jugador) {
         modeloApp.configurarJugador(jugador);
-        configuracionPendiente = false; // ¡Listo! Ya enviamos la configuración
+        configuracionPendiente = false; 
     }
 
     @Override
@@ -103,7 +102,6 @@ public class AplicacionControlador implements IServicioJuego, Observador {
             }
         }
 
-    // --- GESTIÓN DE VENTANAS ---
     private void mostrarLobby() {
         cerrarVentanasDeJuego();
         if (ventanaLobby == null) {
@@ -112,30 +110,24 @@ public class AplicacionControlador implements IServicioJuego, Observador {
         ventanaLobby.setVisible(true);
     }
 
-private void mostrarJuego() {
-        // 1. Cerrar el Lobby si está abierto
+    private void mostrarJuego() {
         if (ventanaLobby != null) {
             ventanaLobby.dispose();
             ventanaLobby = null;
         }
 
-        // Si ya existe la ventana de juego, no la volvemos a crear
         if (frameJuego != null && frameJuego.isVisible()) return;
 
         TableroModelo modeloTablero = modeloApp.getTableroModelo();
         if (modeloTablero == null) return;
 
-        // 2. Crear el controlador del tablero (lógica de clics)
         TableroControlador tableroControlador = new TableroControlador(modeloTablero, modeloApp);
 
-        // 3. CREAR LA NUEVA VENTANA DEDICADA
-        // Pasamos 'this' porque el Controlador implementa IServicioJuego
-        VentanaJuego ventanaJuego = new VentanaJuego(modeloTablero, tableroControlador, this);
+
+        VentanaJuego ventanaJuego = new VentanaJuego(tableroControlador, this);
         
-        // Asignamos a la variable global frameJuego (que es de tipo JFrame)
         this.frameJuego = ventanaJuego;
         
-        // 4. Mostrar
         frameJuego.setVisible(true);
     }
 
@@ -144,10 +136,8 @@ private void mostrarJuego() {
             ventanaConfiguracionGrafica.toFront();
             return;
         }
-        // Pasamos 'this' (el controlador) porque implementa IServicioJuego
         ventanaConfiguracionGrafica = new PanelConfiguracionJugador(this);
 
-        // Centrar en pantalla
         ventanaConfiguracionGrafica.setLocationRelativeTo(null);
         ventanaConfiguracionGrafica.setVisible(true);
     }
@@ -172,7 +162,7 @@ private void mostrarJuego() {
 
     private void cerrarVentanasDeJuego() {
         if (frameJuego != null) { frameJuego.dispose(); frameJuego = null; }
-        // Cerrar la nueva ventana gráfica
+
         if (ventanaConfiguracionGrafica != null) { 
             ventanaConfiguracionGrafica.dispose(); 
             ventanaConfiguracionGrafica = null; 

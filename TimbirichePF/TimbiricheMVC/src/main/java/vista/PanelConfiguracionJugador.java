@@ -4,7 +4,6 @@
  */
 package vista;
 
-import PlantillaFROM.*;
 import entidades.Jugador;
 import interfaces.IServicioJuego;
 import java.awt.Color;
@@ -17,7 +16,6 @@ import java.util.List;
 import javax.swing.ImageIcon;
 import javax.swing.JColorChooser;
 import javax.swing.JOptionPane;
-import utilidades.MoverVentana;
 import utilidades.Recursos;
 
 /**
@@ -32,17 +30,21 @@ public class PanelConfiguracionJugador extends javax.swing.JFrame {
     public PanelConfiguracionJugador(IServicioJuego servicioJuego) {
         
         this.servicioJuego = servicioJuego;
-        this.setUndecorated(true);
         
         initComponents();
         inicializarComponentesLogicos();
         configurarLabels();
         
-        new MoverVentana(this, lblFondo);
+        panelPrincipal.setPreferredSize(new java.awt.Dimension(1000, 1000));
+        javax.swing.JScrollPane scrollPane = new javax.swing.JScrollPane(panelPrincipal);
+        scrollPane.getVerticalScrollBar().setUnitIncrement(16);
+        this.setContentPane(scrollPane);
+        
+        this.pack();
     }
 
     private void inicializarComponentesLogicos() {
-        // 1. Inicializar configuración por defecto
+        
         List<String> avatares = Recursos.getAvataresDisponibles();
         List<Color> colores = Recursos.getColoresDisponibles();
         
@@ -52,9 +54,6 @@ public class PanelConfiguracionJugador extends javax.swing.JFrame {
                 (colores != null && !colores.isEmpty()) ? colores.get(0) : Color.BLUE
         );
 
-
-
-        // 3. Actualizar vistas previas iniciales
         actualizarAvatarUI();
         actualizarColorUI();
     }

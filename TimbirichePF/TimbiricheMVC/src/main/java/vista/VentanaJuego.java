@@ -4,7 +4,6 @@
  */
 package vista;
 
-import PlantillaFROM.*;
 import controlador.TableroControlador;
 import entidades.Jugador;
 import interfaces.IServicioJuego;
@@ -20,7 +19,6 @@ import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
 import modelo.TableroModelo;
 import observador.Observador;
-import utilidades.MoverVentana;
 
 /**
  *
@@ -28,24 +26,21 @@ import utilidades.MoverVentana;
  */
 public class VentanaJuego extends javax.swing.JFrame implements Observador {
     
-    private final TableroModelo modelo;
     private JLabel lblTurno;
     private JLabel lblCodigoSala;
     private JLabel lblSeparador;
     private PanelLateral panelLateralReal;
+    private TableroControlador controladorTablero;
 
-    public VentanaJuego(TableroModelo modelo, TableroControlador controladorTablero, IServicioJuego servicioJuego) {
+    public VentanaJuego(TableroControlador controladorTablero, IServicioJuego servicioJuego) {
     
-this.setUndecorated(true);
         initComponents();
         this.getContentPane().setBackground(new java.awt.Color(45, 40, 90));
+        this.controladorTablero = controladorTablero;
+        this.panelLateralReal = new PanelLateral(controladorTablero);
         
-        this.modelo = modelo;
-        
-        // CORRECCIÓN 2: ¡Suscribirse al modelo! Sin esto, actualizar() nunca se ejecuta.
-        this.modelo.agregarObservador(this);
+        controladorTablero.suscribirVentanaJuego(this);
 
-        // Configuración de Layouts y Transparencia
         panelJuego.setLayout(new BorderLayout());
         panelLateral.setLayout(new BorderLayout());
         panelNorte.setLayout(new BorderLayout());
@@ -54,18 +49,21 @@ this.setUndecorated(true);
         panelLateral.setOpaque(false);
         panelNorte.setOpaque(false);
 
-        // Inicialización de Paneles
-        // Asignamos a la variable de clase, no a una local
-        this.panelLateralReal = new PanelLateral(modelo);
         panelLateralReal.setServicioJuego(servicioJuego);
         panelLateral.add(this.panelLateralReal, BorderLayout.CENTER);
         
-        TableroVista tableroVista = new TableroVista(modelo, controladorTablero);
+        TableroVista tableroVista = new TableroVista(controladorTablero);
         panelJuego.add(tableroVista, BorderLayout.CENTER);
  
         configurarPanelNorte(); 
         configurarLabels();
-        new MoverVentana(this, lblFondo);
+        
+        panelFondo.setPreferredSize(new java.awt.Dimension(1000, 1000));
+        javax.swing.JScrollPane scrollPane = new javax.swing.JScrollPane(panelFondo);
+        scrollPane.getVerticalScrollBar().setUnitIncrement(16);
+        this.setContentPane(scrollPane);
+        
+        this.pack();
         
         actualizar();
     }
@@ -94,20 +92,20 @@ lblTurno = new JLabel("Esperando...", SwingConstants.LEFT);
                 this.panelLateralReal.actualizarUI();
             }
 
-            String codigo = (modelo.getCodigoSala() != null) ? modelo.getCodigoSala() : "---";
+            String codigo = (controladorTablero.getCodigoSala() != null) ? controladorTablero.getCodigoSala() : "---";
             if (lblCodigoSala != null) lblCodigoSala.setText("Código: " + codigo);
 
-            if (modelo.getEstadoActual() == null) {
+            if (controladorTablero.getEstadoActual() == null) {
                 if (lblTurno != null) lblTurno.setText("Conectando...");
                 return;
             }
 
             if (lblTurno != null) {
-                if (modelo.isJuegoTerminado()) {
+                if (controladorTablero.isJuegoTerminado()) {
                     lblTurno.setText("¡Fin del Juego!");
                     lblTurno.setForeground(Color.YELLOW);
                 } else {
-                    Jugador actual = modelo.getJugadorActual();
+                    Jugador actual = controladorTablero.getJugadorActual();
                     if (actual != null) {
                         lblTurno.setText("Turno: " + actual.nombre());
                         lblTurno.setForeground(actual.color());
