@@ -14,10 +14,11 @@ import java.awt.event.WindowEvent;
 public class AplicacionControlador implements IServicioJuego, Observador {
 
     private final AplicacionModelo modeloApp;
+
     private VentanaLobby ventanaLobby;
-    private VentanaConfiguracion ventanaConfig;
-    private PanelConfiguracionJugador ventanaConfiguracionGrafica;
-    private JFrame frameJuego;
+    private PanelConfiguracionJugador ventanaConfiguracionGrafica; 
+    private JFrame frameJuego; 
+    private IServicioJuego interfazControladorApp;
 
     private boolean configuracionPendiente = false;
 
@@ -30,22 +31,22 @@ public class AplicacionControlador implements IServicioJuego, Observador {
         SwingUtilities.invokeLater(this::mostrarLobby);
     }
 
-    @Override
+   @Override
     public void crearPartida() {
-        configuracionPendiente = true; 
+        configuracionPendiente = true;
         modeloApp.crearPartida();
     }
 
     @Override
     public void unirseAPartida(String codigo) {
-        configuracionPendiente = true; 
+        configuracionPendiente = true;
         modeloApp.unirseAPartida(codigo);
     }
 
     @Override
     public void enviarConfiguracionJugador(Jugador jugador) {
         modeloApp.configurarJugador(jugador);
-        configuracionPendiente = false; 
+        configuracionPendiente = false;
     }
 
     @Override
@@ -60,7 +61,7 @@ public class AplicacionControlador implements IServicioJuego, Observador {
 
     private void manejarCambioEstado() {
         if (modeloApp.getMensajeError() != null) {
-            JOptionPane.showMessageDialog(getVentanaActiva(), modeloApp.getMensajeError(), "Error", JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(null, modeloApp.getMensajeError(), "Error", JOptionPane.ERROR_MESSAGE); // Usar null para que salga encima de todo
             modeloApp.limpiarError();
             return;
         }
@@ -69,109 +70,87 @@ public class AplicacionControlador implements IServicioJuego, Observador {
             case LOBBY:
                 mostrarLobby();
                 break;
-                
+
             case PARTIDA:
-                mostrarJuego();
-                verificarConfiguracionRequerida();
+               
+                Jugador local = modeloApp.getJugadorLocal();
+                if (configuracionPendiente || local == null || local.id() == 0) {
+                    mostrarConfiguracion();
+                } else {
+                    mostrarJuego();
+                }
                 break;
-                
+
             case RESULTADOS:
                 mostrarResultados();
                 break;
         }
     }
-    private void verificarConfiguracionRequerida() {
-            Jugador local = modeloApp.getJugadorLocal();
 
-            if (configuracionPendiente || local == null || local.id() == 0) {
-                mostrarConfiguracion();
-            } 
 
-            else {
-                if (ventanaConfiguracionGrafica != null && ventanaConfiguracionGrafica.isVisible()) {
-                    ventanaConfiguracionGrafica.dispose();
-                    ventanaConfiguracionGrafica = null;
-                }
-
-                if (ventanaConfig != null && ventanaConfig.isVisible()) {
-                    ventanaConfig.dispose();
-                    ventanaConfig = null;
-                }
-
-                if(frameJuego != null) frameJuego.setTitle("Timbiriche - " + local.nombre());
-            }
-        }
-
-    private void mostrarLobby() {
-        cerrarVentanasDeJuego();
-        if (ventanaLobby == null) {
-            ventanaLobby = new VentanaLobby(this);
-        }
-        ventanaLobby.setVisible(true);
-    }
-
-    private void mostrarJuego() {
+    private void cerrarTodasLasVentanas() {
         if (ventanaLobby != null) {
             ventanaLobby.dispose();
             ventanaLobby = null;
         }
+        if (ventanaConfiguracionGrafica != null) {
+            ventanaConfiguracionGrafica.dispose();
+            ventanaConfiguracionGrafica = null;
+        }
+        if (frameJuego != null) {
+            frameJuego.dispose();
+            frameJuego = null;
+        }
+    }
 
-        if (frameJuego != null && frameJuego.isVisible()) return;
-
-        TableroModelo modeloTablero = modeloApp.getTableroModelo();
-        if (modeloTablero == null) return;
-
-        TableroControlador tableroControlador = new TableroControlador(modeloTablero, modeloApp);
-
-
-        VentanaJuego ventanaJuego = new VentanaJuego(tableroControlador, this);
-        
-        this.frameJuego = ventanaJuego;
-        
-        frameJuego.setVisible(true);
+    private void mostrarLobby() {
+        cerrarTodasLasVentanas();
+        ventanaLobby = new VentanaLobby(this);
+        ventanaLobby.setVisible(true);
     }
 
     private void mostrarConfiguracion() {
-        if (ventanaConfiguracionGrafica != null && ventanaConfiguracionGrafica.isVisible()) {
-            ventanaConfiguracionGrafica.toFront();
-            return;
-        }
+        cerrarTodasLasVentanas();
         ventanaConfiguracionGrafica = new PanelConfiguracionJugador(this);
-
-        ventanaConfiguracionGrafica.setLocationRelativeTo(null);
         ventanaConfiguracionGrafica.setVisible(true);
     }
-    
+
+    private void mostrarJuego() {
+        if (frameJuego != null && frameJuego.isVisible()) {
+            Jugador local = modeloApp.getJugadorLocal();
+            if (local != null) {
+                frameJuego.setTitle("Timbiriche - " + local.nombre());
+            }
+            return;
+        }
+        cerrarTodasLasVentanas();
+        TableroModelo modeloTablero = modeloApp.getTableroModelo();
+        if (modeloTablero == null) {
+            return;
+        }
+        TableroControlador tableroControlador = new TableroControlador(modeloTablero, modeloApp);
+        VentanaJuego vJuego = new VentanaJuego(tableroControlador , interfazControladorApp);
+        this.frameJuego = vJuego;
+        Jugador local = modeloApp.getJugadorLocal();
+        if (local != null) {
+            frameJuego.setTitle("Timbiriche - " + local.nombre());
+        }
+        frameJuego.setVisible(true);
+    }
     private void mostrarResultados() {
         if (frameJuego != null && modeloApp.getResultadosFinales() != null) {
             VentanaResultados vr = new VentanaResultados(frameJuego, modeloApp.getResultadosFinales(), this);
             vr.addWindowListener(new WindowAdapter() {
-                @Override public void windowClosed(WindowEvent e) {
+                @Override
+                public void windowClosed(WindowEvent e) {
                     volverAlLobby();
                 }
             });
             vr.setVisible(true);
         }
     }
-
     public void volverAlLobby() {
-        cerrarVentanasDeJuego();
         modeloApp.cambiarEstado(AplicacionModelo.EstadoNavegacion.LOBBY);
-        mostrarLobby();
-    }
-
-    private void cerrarVentanasDeJuego() {
-        if (frameJuego != null) { frameJuego.dispose(); frameJuego = null; }
-
-        if (ventanaConfiguracionGrafica != null) { 
-            ventanaConfiguracionGrafica.dispose(); 
-            ventanaConfiguracionGrafica = null; 
-        }
-    }
-
-    private java.awt.Window getVentanaActiva() {
-        if (ventanaConfig != null && ventanaConfig.isVisible()) return ventanaConfig;
-        if (frameJuego != null && frameJuego.isVisible()) return frameJuego;
-        return ventanaLobby;
+        mostrarLobby(); 
     }
 }
