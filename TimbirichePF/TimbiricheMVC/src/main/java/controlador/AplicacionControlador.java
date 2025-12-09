@@ -1,25 +1,18 @@
 package controlador;
 
-import interfaces.IServicioJuego;
 import entidades.Jugador;
 import modelo.AplicacionModelo;
 import modelo.TableroModelo;
 import observador.Observador;
 import vista.*;
-
 import javax.swing.*;
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
 
-public class AplicacionControlador implements IServicioJuego, Observador {
+public class AplicacionControlador implements Observador {
 
     private final AplicacionModelo modeloApp;
-
     private VentanaLobby ventanaLobby;
-    private PanelConfiguracionJugador ventanaConfiguracionGrafica; 
-    private JFrame frameJuego; 
-    private IServicioJuego interfazControladorApp;
-
+    private PanelConfiguracionJugador ventanaConfiguracionGrafica;
+    private JFrame frameJuego;
     private boolean configuracionPendiente = false;
 
     public AplicacionControlador(AplicacionModelo modeloApp) {
@@ -31,29 +24,30 @@ public class AplicacionControlador implements IServicioJuego, Observador {
         SwingUtilities.invokeLater(this::mostrarLobby);
     }
 
-   @Override
+    public void iniciarPartida() {
+        modeloApp.iniciarPartida();
+    }
+
+    // --- Métodos que la VISTA llamará ---
     public void crearPartida() {
         configuracionPendiente = true;
         modeloApp.crearPartida();
     }
 
-    @Override
     public void unirseAPartida(String codigo) {
         configuracionPendiente = true;
         modeloApp.unirseAPartida(codigo);
     }
 
-    @Override
+    // Este es el método que usará PanelConfiguracionJugador
     public void enviarConfiguracionJugador(Jugador jugador) {
         modeloApp.configurarJugador(jugador);
         configuracionPendiente = false;
+        // Forzamos actualización para verificar si entramos al juego
+        manejarCambioEstado();
     }
 
-    @Override
-    public void iniciarPartida() {
-        modeloApp.iniciarPartida();
-    }
-
+    // --- Manejo de Observador ---
     @Override
     public void actualizar() {
         SwingUtilities.invokeLater(this::manejarCambioEstado);
@@ -61,7 +55,7 @@ public class AplicacionControlador implements IServicioJuego, Observador {
 
     private void manejarCambioEstado() {
         if (modeloApp.getMensajeError() != null) {
-            JOptionPane.showMessageDialog(null, modeloApp.getMensajeError(), "Error", JOptionPane.ERROR_MESSAGE); // Usar null para que salga encima de todo
+            JOptionPane.showMessageDialog(null, modeloApp.getMensajeError(), "Error", JOptionPane.ERROR_MESSAGE);
             modeloApp.limpiarError();
             return;
         }
@@ -72,8 +66,8 @@ public class AplicacionControlador implements IServicioJuego, Observador {
                 break;
 
             case PARTIDA:
-               
                 Jugador local = modeloApp.getJugadorLocal();
+                // Si estamos en partida pero no tenemos configuración, mostrar config
                 if (configuracionPendiente || local == null || local.id() == 0) {
                     mostrarConfiguracion();
                 } else {
@@ -87,7 +81,7 @@ public class AplicacionControlador implements IServicioJuego, Observador {
         }
     }
 
-
+    // --- Gestión de Ventanas ---
     private void cerrarTodasLasVentanas() {
         if (ventanaLobby != null) {
             ventanaLobby.dispose();
@@ -105,52 +99,56 @@ public class AplicacionControlador implements IServicioJuego, Observador {
 
     private void mostrarLobby() {
         cerrarTodasLasVentanas();
-        ventanaLobby = new VentanaLobby(this);
+        ventanaLobby = new VentanaLobby(this); // Asumiendo que Lobby recibe el controlador
         ventanaLobby.setVisible(true);
     }
 
     private void mostrarConfiguracion() {
         cerrarTodasLasVentanas();
+        // AQUI ESTÁ EL CAMBIO: Pasamos 'this' (el controlador)
         ventanaConfiguracionGrafica = new PanelConfiguracionJugador(this);
         ventanaConfiguracionGrafica.setVisible(true);
     }
 
     private void mostrarJuego() {
         if (frameJuego != null && frameJuego.isVisible()) {
-            Jugador local = modeloApp.getJugadorLocal();
-            if (local != null) {
-                frameJuego.setTitle("Timbiriche - " + local.nombre());
-            }
             return;
         }
+
         cerrarTodasLasVentanas();
         TableroModelo modeloTablero = modeloApp.getTableroModelo();
         if (modeloTablero == null) {
             return;
         }
+
         TableroControlador tableroControlador = new TableroControlador(modeloTablero, modeloApp);
-        VentanaJuego vJuego = new VentanaJuego(tableroControlador , interfazControladorApp);
+
+        // --- AQUÍ ESTABA EL ERROR ---
+        // Debes usar 'this' para pasar este mismo controlador a la ventana
+        VentanaJuego vJuego = new VentanaJuego(tableroControlador, this);
+        // ----------------------------
+
         this.frameJuego = vJuego;
+
+        // Opcional: poner título
         Jugador local = modeloApp.getJugadorLocal();
         if (local != null) {
             frameJuego.setTitle("Timbiriche - " + local.nombre());
         }
+
         frameJuego.setVisible(true);
     }
+
+    // ... (mostrarResultados y volverAlLobby igual que antes) ...
     private void mostrarResultados() {
         if (frameJuego != null && modeloApp.getResultadosFinales() != null) {
             VentanaResultados vr = new VentanaResultados(frameJuego, modeloApp.getResultadosFinales(), this);
-            vr.addWindowListener(new WindowAdapter() {
-                @Override
-                public void windowClosed(WindowEvent e) {
-                    volverAlLobby();
-                }
-            });
             vr.setVisible(true);
         }
     }
+
     public void volverAlLobby() {
         modeloApp.cambiarEstado(AplicacionModelo.EstadoNavegacion.LOBBY);
-        mostrarLobby(); 
+        mostrarLobby();
     }
 }

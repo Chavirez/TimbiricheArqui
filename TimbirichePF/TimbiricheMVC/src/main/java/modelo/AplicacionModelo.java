@@ -4,7 +4,7 @@ import entidades.*;
 import eventos.EventoPartidaTerminada;
 import interfaces.*;
 import observador.Observable;
-import java.awt.Color; // NECESARIO para el constructor de Jugador
+import java.awt.Color; 
 
 public class AplicacionModelo extends Observable implements IObservadorJuego, IGestorTablero {
 
@@ -13,7 +13,6 @@ public class AplicacionModelo extends Observable implements IObservadorJuego, IG
         PARTIDA,   
         RESULTADOS
     }
-
     private final IGestorJuego gestorRed;
     private EstadoNavegacion estadoActual = EstadoNavegacion.LOBBY;
     private Jugador jugadorLocal; 
@@ -34,6 +33,7 @@ public class AplicacionModelo extends Observable implements IObservadorJuego, IG
         gestorRed.configurarJugador(jugador);
     }
     public void iniciarPartida() { gestorRed.iniciarPartida(); }
+    @Override
     public void reclamarLinea(int f, int c, boolean h) {
         if (jugadorLocal != null) gestorRed.reclamarLinea(f, c, h, jugadorLocal);
     }
@@ -50,17 +50,10 @@ public class AplicacionModelo extends Observable implements IObservadorJuego, IG
     public void unionExitosa(EstadoPartidaDTO estadoInicial) {
         this.tableroModelo = new TableroModelo();
         this.tableroModelo.actualizarEstado(estadoInicial);
-        
-        // CORRECCIÓN AQUÍ:
-        // El constructor de Jugador requiere: (int id, String nombre, String avatar, Color color)
         if (this.jugadorLocal == null) {
-            // Usamos ID 0 y color gris como valores temporales para el jugador "Anónimo"
             this.jugadorLocal = new Jugador(0, "Jugador", "avatar_default", Color.GRAY);
         }
-        
-        // Vamos directo a PARTIDA. El controlador detectará ID=0 y pedirá configuración.
         cambiarEstado(EstadoNavegacion.PARTIDA);
-        
         sincronizarJugadorLocal(estadoInicial);
     }
 
@@ -74,7 +67,6 @@ public class AplicacionModelo extends Observable implements IObservadorJuego, IG
     }
 
     private void sincronizarJugadorLocal(EstadoPartidaDTO estado) {
-        // Buscamos si nuestro nombre ya aparece en la lista del servidor para actualizar nuestro ID
         if (this.jugadorLocal != null && this.jugadorLocal.id() == 0) {
             for (Jugador j : estado.jugadores()) {
                 if (j.nombre().equals(this.jugadorLocal.nombre())) {

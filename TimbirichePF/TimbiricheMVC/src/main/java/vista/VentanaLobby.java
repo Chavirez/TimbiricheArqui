@@ -4,7 +4,7 @@
  */
 package vista;
 
-import interfaces.IServicioJuego;
+import controlador.AplicacionControlador;
 import java.awt.Color;
 import java.awt.Cursor;
 import java.awt.event.FocusEvent;
@@ -14,11 +14,11 @@ import javax.swing.JOptionPane;
 
 public class VentanaLobby extends javax.swing.JFrame {
 
-    private final IServicioJuego servicioJuego;
+    private final AplicacionControlador controladorApp;
     
-    public VentanaLobby(IServicioJuego servicioJuego) {
+    public VentanaLobby(AplicacionControlador controladorApp) {
         
-        this.servicioJuego = servicioJuego;
+        this.controladorApp = controladorApp;
         
         this.getContentPane().setBackground(new java.awt.Color(45, 40, 90));
         initComponents();
@@ -164,16 +164,16 @@ public class VentanaLobby extends javax.swing.JFrame {
                         JOptionPane.WARNING_MESSAGE);
                 return;
             }
-            if (servicioJuego != null) {
-                servicioJuego.unirseAPartida(codigo);
+            if (controladorApp != null) {
+                controladorApp.unirseAPartida(codigo);
             }
             
     }//GEN-LAST:event_lblUnirseMouseClicked
 
     private void lblCrearMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_lblCrearMouseClicked
     
-        if (servicioJuego != null) {
-            servicioJuego.crearPartida();
+        if (controladorApp != null) {
+            controladorApp.crearPartida();
         }
         
     }//GEN-LAST:event_lblCrearMouseClicked

@@ -1,68 +1,97 @@
 package vista;
 
+import controlador.AplicacionControlador; // CAMBIO: Usamos el controlador principal
 import controlador.TableroControlador;
 import utilidades.Recursos;
 import entidades.Jugador;
-import interfaces.IServicioJuego;
 import javax.swing.*;
 import java.awt.*;
 import java.util.List;
 
 public class PanelLateral extends JPanel {
 
-    private final TableroControlador controlador;
+    // Controlador para datos del tablero (Puntajes, Turnos, Lista Jugadores)
+    private final TableroControlador tableroControlador;
+
+    // Controlador para acciones globales (Iniciar partida, Salir, Cambiar vistas)
+    private AplicacionControlador appControlador;
+
     private JLabel[] labelsPuntajes;
     private JPanel panelJugadores;
-
     private JButton btnIniciarPartida;
-    private IServicioJuego servicioJuego; // Referencia al gestor
 
-    public PanelLateral(TableroControlador controlador) {
-        this.controlador = controlador;
+    public PanelLateral(TableroControlador tableroControlador) {
+        this.tableroControlador = tableroControlador;
         this.labelsPuntajes = new JLabel[0];
 
         setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
         setPreferredSize(new Dimension(250, 600));
-        setOpaque(false); 
+        setOpaque(false);
         setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
 
         panelJugadores = new JPanel();
         panelJugadores.setLayout(new BoxLayout(panelJugadores, BoxLayout.Y_AXIS));
-        panelJugadores.setOpaque(false); // <--- IMPORTANTE
+        panelJugadores.setOpaque(false);
         add(panelJugadores);
 
         add(Box.createVerticalGlue());
 
+        // --- Botón Iniciar Partida ---
         btnIniciarPartida = new JButton("Iniciar Partida");
         btnIniciarPartida.setAlignmentX(Component.CENTER_ALIGNMENT);
         btnIniciarPartida.setVisible(false);
+        btnIniciarPartida.setCursor(new Cursor(Cursor.HAND_CURSOR));
+
         btnIniciarPartida.addActionListener(e -> {
-            if (servicioJuego != null) {
-                servicioJuego.iniciarPartida();
+            System.out.println("Botón Iniciar presionado..."); // <--- DEBUG
+
+            if (appControlador != null) {
+                System.out.println("Enviando orden al controlador..."); // <--- DEBUG
+                appControlador.iniciarPartida();
+            } else {
+                System.err.println("ERROR: appControlador es NULL en PanelLateral"); // <--- IMPORTANTE
             }
         });
 
         add(btnIniciarPartida);
         add(Box.createRigidArea(new Dimension(0, 10)));
 
+        // --- Botón Salir ---
         JButton btnSalir = new JButton("Salir");
         btnSalir.setAlignmentX(Component.CENTER_ALIGNMENT);
-        btnSalir.addActionListener(e -> System.exit(0));
+        btnSalir.setCursor(new Cursor(Cursor.HAND_CURSOR));
+        btnSalir.addActionListener(e -> {
+            if (appControlador != null) {
+                // Podrías tener un método appControlador.salirDelJuego()
+                System.exit(0);
+            } else {
+                System.exit(0);
+            }
+        });
+
         add(btnSalir);
     }
-    
-    public void setServicioJuego(IServicioJuego servicioJuego) {
-        this.servicioJuego = servicioJuego;
-    }
 
+    /**
+     * Inyecta el controlador principal de la aplicación.Se llama desde
+     * VentanaJuego o AplicacionControlador al crear la vista.
+     *
+     * @param appControlador
+     */
+    public void setControladorPrincipal(AplicacionControlador appControlador) {
+        this.appControlador = appControlador;
+    }
 
     private void inicializarPanelesJugadores() {
         panelJugadores.removeAll();
-        List<Jugador> jugadores = controlador.getJugadores();
+        List<Jugador> jugadores = tableroControlador.getJugadores();
 
         if (jugadores == null || jugadores.isEmpty()) {
-            panelJugadores.add(new JLabel("Esperando jugadores..."));
-            this.labelsPuntajes = new JLabel[0]; 
+            JLabel lblEspera = new JLabel("Esperando jugadores...");
+            lblEspera.setForeground(Color.DARK_GRAY);
+            lblEspera.setAlignmentX(Component.CENTER_ALIGNMENT);
+            panelJugadores.add(lblEspera);
+            this.labelsPuntajes = new JLabel[0];
             panelJugadores.revalidate();
             panelJugadores.repaint();
             return;
@@ -83,13 +112,14 @@ public class PanelLateral extends JPanel {
         panel.setBackground(new Color(230, 230, 230));
         panel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
 
-        // Cargar avatar (asegúrate de que Recursos.loadScaledAvatar maneje rutas nulas si es necesario)
-        JLabel lblAvatar = new JLabel(Recursos.loadScaledAvatar(jugador.avatarPath(), 50, 50));
+        // Cargar avatar
+        ImageIcon icono = Recursos.loadScaledAvatar(jugador.avatarPath(), 50, 50);
+        JLabel lblAvatar = new JLabel(icono);
         lblAvatar.setPreferredSize(new Dimension(50, 50));
 
         JLabel lblNombre = new JLabel(jugador.nombre());
         lblNombre.setFont(new Font("Arial", Font.BOLD, 16));
-        lblNombre.setForeground(jugador.color()); // Usar el color del jugador
+        lblNombre.setForeground(jugador.color());
 
         labelsPuntajes[index] = new JLabel("0");
         labelsPuntajes[index].setFont(new Font("Arial", Font.BOLD, 20));
@@ -98,26 +128,28 @@ public class PanelLateral extends JPanel {
         panel.add(lblAvatar, BorderLayout.WEST);
         panel.add(lblNombre, BorderLayout.CENTER);
         panel.add(labelsPuntajes[index], BorderLayout.EAST);
+
+        // Hacemos el panel semitransparente o transparente según diseño
         panel.setOpaque(false);
         return panel;
     }
 
     /**
-     * Método llamado por PanelPrincipal (o el Observador) al actualizarse el Modelo.
+     * Método llamado por VentanaJuego cuando el Modelo notifica cambios.
      */
     public void actualizarUI() {
-        Jugador jugadorActualDelModelo = controlador.getJugadorActual();
-        List<Jugador> jugadores = controlador.getJugadores();
+        Jugador jugadorActualTurno = tableroControlador.getJugadorActual();
+        List<Jugador> jugadores = tableroControlador.getJugadores();
         int jugadoresSize = (jugadores != null) ? jugadores.size() : 0;
-        
-        // Si cambió la cantidad de jugadores o es la primera carga con datos
+
+        // 1. Reconstruir lista si cambia la cantidad de jugadores
         if (this.labelsPuntajes.length != jugadoresSize
-                || (jugadorActualDelModelo == null && jugadoresSize > 0 && this.labelsPuntajes.length == 0)) {
+                || (jugadorActualTurno == null && jugadoresSize > 0 && this.labelsPuntajes.length == 0)) {
             inicializarPanelesJugadores();
         }
 
-        // Actualizar los textos de los puntajes
-        int[] puntajes = controlador.getPuntajes();
+        // 2. Actualizar puntajes numéricos
+        int[] puntajes = tableroControlador.getPuntajes();
         if (puntajes != null) {
             int limite = Math.min(puntajes.length, labelsPuntajes.length);
             for (int i = 0; i < limite; i++) {
@@ -126,11 +158,8 @@ public class PanelLateral extends JPanel {
                 }
             }
         }
-        
-        // Lógica para mostrar el botón de inicio:
-        // Solo si la partida no ha iniciado (jugadorActual es null), no ha terminado, y hay al menos un jugador.
-        // Nota: Ajusta 'jugadoresSize >= 2' si requieres mínimo 2 jugadores.
-        if (jugadorActualDelModelo == null && !controlador.isJuegoTerminado() && jugadoresSize >= 1) {
+
+        if (jugadorActualTurno == null && !tableroControlador.isJuegoTerminado() && jugadoresSize >= 1) {
             btnIniciarPartida.setVisible(true);
         } else {
             btnIniciarPartida.setVisible(false);

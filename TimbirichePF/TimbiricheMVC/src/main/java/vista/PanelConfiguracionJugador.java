@@ -4,10 +4,9 @@
  */
 package vista;
 
+import controlador.AplicacionControlador;
 import entidades.Jugador;
-import interfaces.IServicioJuego;
 import java.awt.Color;
-import vista.*;
 import java.awt.Cursor;
 import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
@@ -24,30 +23,30 @@ import utilidades.Recursos;
  */
 public class PanelConfiguracionJugador extends javax.swing.JFrame {
 
-    private IServicioJuego servicioJuego;
     private ConfiguracionJugador config;
-    
-    public PanelConfiguracionJugador(IServicioJuego servicioJuego) {
-        
-        this.servicioJuego = servicioJuego;
-        
+    // Referencia al controlador concreto
+    private final AplicacionControlador controlador;
+
+    public PanelConfiguracionJugador(AplicacionControlador controlador) {
+        this.controlador = controlador;
+
         initComponents();
         inicializarComponentesLogicos();
         configurarLabels();
-        
+
+        // Configuración visual extra...
         panelPrincipal.setPreferredSize(new java.awt.Dimension(1000, 1000));
         javax.swing.JScrollPane scrollPane = new javax.swing.JScrollPane(panelPrincipal);
         scrollPane.getVerticalScrollBar().setUnitIncrement(16);
         this.setContentPane(scrollPane);
-        
         this.pack();
     }
 
     private void inicializarComponentesLogicos() {
-        
+
         List<String> avatares = Recursos.getAvataresDisponibles();
         List<Color> colores = Recursos.getColoresDisponibles();
-        
+
         this.config = new ConfiguracionJugador(
                 "Jugador",
                 (avatares != null && !avatares.isEmpty()) ? avatares.get(0) : "",
@@ -62,7 +61,7 @@ public class PanelConfiguracionJugador extends javax.swing.JFrame {
 
         DialogoSelectorAvatar selector = new DialogoSelectorAvatar(this, config.getAvatarPath(), new HashSet<>());
         selector.setVisible(true);
-        
+
         String nuevoPath = selector.getAvatarSeleccionadoPath();
         if (nuevoPath != null) {
             config.setAvatarPath(nuevoPath);
@@ -80,7 +79,7 @@ public class PanelConfiguracionJugador extends javax.swing.JFrame {
 
     private void registrarJugador() {
         String nombre = fldNombre.getText().trim();
-        
+
         if (nombre.isEmpty() || nombre.equals("Nombre de jugador")) {
             mostrarError("El nombre no puede estar vacío.");
             return;
@@ -89,18 +88,18 @@ public class PanelConfiguracionJugador extends javax.swing.JFrame {
             mostrarError("Debes seleccionar un avatar.");
             return;
         }
-        
+
         config.setNombre(nombre);
-        
+
         Jugador jugadorFinal = new Jugador(
-                0, 
+                0,
                 config.getNombre(),
                 config.getAvatarPath(),
                 config.getColor()
         );
 
-        if (servicioJuego != null) {
-            servicioJuego.enviarConfiguracionJugador(jugadorFinal);
+        if (controlador != null) {
+            controlador.enviarConfiguracionJugador(jugadorFinal);
 
         } else {
             System.out.println("Modo prueba: Jugador creado -> " + jugadorFinal);
@@ -110,7 +109,7 @@ public class PanelConfiguracionJugador extends javax.swing.JFrame {
 
     private void actualizarAvatarUI() {
 
-    ImageIcon icon = Recursos.loadScaledAvatar(config.getAvatarPath(), 150, 150);
+        ImageIcon icon = Recursos.loadScaledAvatar(config.getAvatarPath(), 150, 150);
 
         if (icon != null) {
             lblAvatar.setIcon(icon);
@@ -121,16 +120,14 @@ public class PanelConfiguracionJugador extends javax.swing.JFrame {
 
     private void actualizarColorUI() {
 
-
         panelColor.setBackground(config.getColor());
 
-        
-
     }
-    
+
     private void mostrarError(String msj) {
         JOptionPane.showMessageDialog(this, msj, "Error de Registro", JOptionPane.WARNING_MESSAGE);
     }
+
     @SuppressWarnings("unchecked")
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
@@ -294,41 +291,40 @@ public class PanelConfiguracionJugador extends javax.swing.JFrame {
     private void lblRegistrarMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_lblRegistrarMouseClicked
 
         registrarJugador();
-        
+
     }//GEN-LAST:event_lblRegistrarMouseClicked
 
     private void lblSeleccionarColorMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_lblSeleccionarColorMouseClicked
- 
+
         seleccionarColor();
-        
+
     }//GEN-LAST:event_lblSeleccionarColorMouseClicked
 
     private void lblSeleccionarAvatarMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_lblSeleccionarAvatarMouseClicked
 
         seleccionarAvatar();
-        
+
     }//GEN-LAST:event_lblSeleccionarAvatarMouseClicked
 
-    
-    private void configurarLabels(){
-    
+    private void configurarLabels() {
+
         Cursor cursor = new Cursor(Cursor.HAND_CURSOR);
 
         lblRegistrar.setCursor(cursor);
         lblSeleccionarAvatar.setCursor(cursor);
         lblSeleccionarColor.setCursor(cursor);
-        
+
         panelPrincipal.moveToBack(lblFondo);
         panelPrincipal.moveToFront(lblRegistrar);
         panelPrincipal.moveToFront(lblSeleccionarAvatar);
         panelPrincipal.moveToFront(lblSeleccionarColor);
 
         lblFondo.setFocusable(true);
-        
+
         String placeholder = "Nombre de jugador";
         fldNombre.setText(placeholder);
         fldNombre.setForeground(Color.GRAY);
-        
+
         fldNombre.addFocusListener(new FocusListener() {
             @Override
             public void focusGained(FocusEvent e) {
@@ -348,7 +344,7 @@ public class PanelConfiguracionJugador extends javax.swing.JFrame {
                 }
             }
         });
-        
+
         this.revalidate();
         this.repaint();
     }
@@ -356,7 +352,7 @@ public class PanelConfiguracionJugador extends javax.swing.JFrame {
     public ConfiguracionJugador getConfig() {
         return config;
     }
-    
+
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JTextField fldNombre;
     private javax.swing.JLabel lblAvatar;

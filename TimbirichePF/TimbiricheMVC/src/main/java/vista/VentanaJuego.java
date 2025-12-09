@@ -4,9 +4,9 @@
  */
 package vista;
 
+import controlador.AplicacionControlador;
 import controlador.TableroControlador;
 import entidades.Jugador;
-import interfaces.IServicioJuego;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Cursor;
@@ -22,52 +22,43 @@ import observador.Observador;
  * @author santi
  */
 public class VentanaJuego extends javax.swing.JFrame implements Observador {
-    
+
     private JLabel lblTurno;
     private JLabel lblCodigoSala;
-    private JLabel lblSeparador;
     private PanelLateral panelLateralReal;
-    private TableroControlador controladorTablero;
+    private final TableroControlador controladorTablero;
+    private final AplicacionControlador controladorApp;
 
-    public VentanaJuego(TableroControlador controladorTablero, IServicioJuego servicioJuego) {
-    
+    public VentanaJuego(TableroControlador controladorTablero, AplicacionControlador controladorApp) {
+        this.controladorTablero = controladorTablero;
+        this.controladorApp = controladorApp;
         initComponents();
         this.getContentPane().setBackground(new java.awt.Color(45, 40, 90));
-        this.controladorTablero = controladorTablero;
         this.panelLateralReal = new PanelLateral(controladorTablero);
-        
+        this.panelLateralReal.setControladorPrincipal(controladorApp);
         controladorTablero.suscribirVentanaJuego(this);
-
         panelJuego.setLayout(new BorderLayout());
         panelLateral.setLayout(new BorderLayout());
         panelNorte.setLayout(new BorderLayout());
-        
         panelJuego.setOpaque(false);
         panelLateral.setOpaque(false);
         panelNorte.setOpaque(false);
-
-        panelLateralReal.setServicioJuego(servicioJuego);
         panelLateral.add(this.panelLateralReal, BorderLayout.CENTER);
-        
         TableroVista tableroVista = new TableroVista(controladorTablero);
         panelJuego.add(tableroVista, BorderLayout.CENTER);
- 
-        configurarPanelNorte(); 
+        configurarPanelNorte();
         configurarLabels();
-        
         panelFondo.setPreferredSize(new java.awt.Dimension(1000, 1000));
         javax.swing.JScrollPane scrollPane = new javax.swing.JScrollPane(panelFondo);
         scrollPane.getVerticalScrollBar().setUnitIncrement(16);
         this.setContentPane(scrollPane);
-        
         this.pack();
-        
         actualizar();
     }
 
-    public void configurarPanelNorte(){
-        
-lblTurno = new JLabel("Esperando...", SwingConstants.LEFT);
+    public void configurarPanelNorte() {
+
+        lblTurno = new JLabel("Esperando...", SwingConstants.LEFT);
         lblTurno.setFont(new Font("Arial", Font.BOLD, 24));
         lblTurno.setForeground(Color.BLACK); // Color blanco para que se vea en fondo oscuro
         lblTurno.setBorder(BorderFactory.createEmptyBorder(0, 20, 0, 0));
@@ -79,21 +70,25 @@ lblTurno = new JLabel("Esperando...", SwingConstants.LEFT);
         lblCodigoSala.setForeground(Color.BLACK);
         lblCodigoSala.setBorder(BorderFactory.createEmptyBorder(0, 0, 0, 20));
         panelNorte.add(lblCodigoSala, BorderLayout.EAST);
-            }
-    
-@Override
+    }
+
+    @Override
     public void actualizar() {
         SwingUtilities.invokeLater(() -> {
-            
+
             if (this.panelLateralReal != null) {
                 this.panelLateralReal.actualizarUI();
             }
 
             String codigo = (controladorTablero.getCodigoSala() != null) ? controladorTablero.getCodigoSala() : "---";
-            if (lblCodigoSala != null) lblCodigoSala.setText("Código: " + codigo);
+            if (lblCodigoSala != null) {
+                lblCodigoSala.setText("Código: " + codigo);
+            }
 
             if (controladorTablero.getEstadoActual() == null) {
-                if (lblTurno != null) lblTurno.setText("Conectando..." + " - ");
+                if (lblTurno != null) {
+                    lblTurno.setText("Conectando..." + " - ");
+                }
                 return;
             }
 
@@ -107,14 +102,14 @@ lblTurno = new JLabel("Esperando...", SwingConstants.LEFT);
                         lblTurno.setText("Turno: " + actual.nombre() + " - ");
                         lblTurno.setForeground(actual.color());
                     } else {
-                        lblTurno.setText("Sala de Espera"  + " - ");
+                        lblTurno.setText("Sala de Espera" + " - ");
                         lblTurno.setForeground(Color.BLACK);
                     }
                 }
             }
         });
     }
-    
+
     @SuppressWarnings("unchecked")
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
@@ -254,20 +249,16 @@ lblTurno = new JLabel("Esperando...", SwingConstants.LEFT);
         this.dispose();
     }//GEN-LAST:event_lblEngranajeMouseClicked
 
-    
-    private void configurarLabels(){
-    
+    private void configurarLabels() {
+
         Cursor cursor = new Cursor(Cursor.HAND_CURSOR);
 
         lblEngranaje.setCursor(cursor);
-        
-        
-        
+
         panelFondo.moveToBack(lblFondo);
         panelFondo.moveToFront(lblEngranaje);
         panelFondo.moveToFront(panelLateral);
         panelFondo.moveToFront(panelJuego);
-
 
         this.revalidate();
         this.repaint();

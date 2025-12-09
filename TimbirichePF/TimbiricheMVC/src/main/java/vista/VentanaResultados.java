@@ -1,15 +1,15 @@
 package vista;
 
+import controlador.AplicacionControlador;
 import eventos.EventoPartidaTerminada;
-import interfaces.IServicioJuego;
 import javax.swing.*;
 import java.awt.*;
 
 public class VentanaResultados extends JDialog {
 
-    private final IServicioJuego controladorApp;
+    private  AplicacionControlador controladorApp;
 
-    public VentanaResultados(JFrame parent, EventoPartidaTerminada evento, IServicioJuego controladorApp) {
+    public VentanaResultados(JFrame parent, EventoPartidaTerminada evento, AplicacionControlador controladorApp) {
         super(parent, "Fin del Juego", true); // 'true' modal bloquea la ventana de atrás
         this.controladorApp = controladorApp;
         
