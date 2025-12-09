@@ -1,21 +1,22 @@
 package filtros;
 
-import interfaz.IDispatcher;
+import java.util.function.Consumer;
 
 public class EnvioFilter extends FilterBase<String, Void> {
 
-    private final IDispatcher dispatcher;
+    private final Consumer<String> estrategiaEnvio;
 
-    public EnvioFilter(IDispatcher dispatcher) {
+    public EnvioFilter(Consumer<String> estrategiaEnvio) {
         super();
-        if (dispatcher == null) {
-            throw new IllegalArgumentException("EnvioFilter requiere un IDispatcher no nulo.");
+        if (estrategiaEnvio == null) {
+            throw new IllegalArgumentException("EnvioFilter requiere una estrategia de envío válida.");
         }
-        this.dispatcher = dispatcher;
+        this.estrategiaEnvio = estrategiaEnvio;
     }
 
     @Override
     public void procesar(String entrada) {
-        dispatcher.enviar(entrada);
+        // Ejecuta la acción inyectada (ej. enviar por red)
+        estrategiaEnvio.accept(entrada);
     }
 }

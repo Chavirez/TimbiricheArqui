@@ -11,7 +11,7 @@ public class AplicacionControlador implements Observador {
 
     private final AplicacionModelo modeloApp;
     private VentanaLobby ventanaLobby;
-    private PanelConfiguracionJugador ventanaConfiguracionGrafica;
+    private VentanaConfiguracionJugador ventanaConfiguracionGrafica;
     private JFrame frameJuego;
     private boolean configuracionPendiente = false;
 
@@ -39,7 +39,7 @@ public class AplicacionControlador implements Observador {
         modeloApp.unirseAPartida(codigo);
     }
 
-    // Este es el método que usará PanelConfiguracionJugador
+    // Este es el método que usará VentanaConfiguracionJugador
     public void enviarConfiguracionJugador(Jugador jugador) {
         modeloApp.configurarJugador(jugador);
         configuracionPendiente = false;
@@ -106,7 +106,7 @@ public class AplicacionControlador implements Observador {
     private void mostrarConfiguracion() {
         cerrarTodasLasVentanas();
         // AQUI ESTÁ EL CAMBIO: Pasamos 'this' (el controlador)
-        ventanaConfiguracionGrafica = new PanelConfiguracionJugador(this);
+        ventanaConfiguracionGrafica = new VentanaConfiguracionJugador(this);
         ventanaConfiguracionGrafica.setVisible(true);
     }
 

@@ -21,13 +21,13 @@ import utilidades.Recursos;
  *
  * @author santi
  */
-public class PanelConfiguracionJugador extends javax.swing.JFrame {
+public class VentanaConfiguracionJugador extends javax.swing.JFrame {
 
     private ConfiguracionJugador config;
     // Referencia al controlador concreto
     private final AplicacionControlador controlador;
 
-    public PanelConfiguracionJugador(AplicacionControlador controlador) {
+    public VentanaConfiguracionJugador(AplicacionControlador controlador) {
         this.controlador = controlador;
 
         initComponents();

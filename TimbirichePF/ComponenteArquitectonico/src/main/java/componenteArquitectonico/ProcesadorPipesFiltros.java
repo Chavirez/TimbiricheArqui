@@ -37,41 +37,37 @@ public class ProcesadorPipesFiltros implements ITuberiaSalida, ITuberiaEntrada, 
         Pipeline<Object> tuberia = new Pipeline<>();
         tuberia.agregarFiltro(new EmpaquetadorFilter(gson));
         tuberia.agregarFiltro(new SerializadorFilter(gson));
-        tuberia.agregarFiltro(new EnvioFilter(dispatcher));
-
+        tuberia.agregarFiltro(new EnvioFilter(dispatcher::enviar));
         return tuberia;
     }
 
-    
-    public void conectarReceptorDeAplicacion(ITuberiaEntrada receptor) { 
+    public void conectarReceptorDeAplicacion(ITuberiaEntrada receptor) {
         this.receptorAplicacion = receptor;
-        // Creamos la tubería de entrada que termina en el nuevo filtro EntregaTuberia
         tuberiaEntrada = new pipes.Pipeline<>();
         tuberiaEntrada.agregarFiltro(new filtros.DesempaquetadorFilter(gson))
-            .agregarFiltro(new filtros.DeserializadorFilter(gson))
-            // El filtro final ahora llama a nuestro propio método alRecibirDato
-            .agregarFiltro(new filtros.EntregaTuberiaFilter(this));
-    }
-
-    // 1. Método implementado de ITuberiaSalida: Inicia el flujo de envío de Acciones.
-    @Override
-    public void enviarDato(Object d) { 
-        if(tuberiaSalida!=null) tuberiaSalida.ejecutar(d); 
+                .agregarFiltro(new filtros.DeserializadorFilter(gson))
+                .agregarFiltro(new filtros.EntregaTuberiaFilter(this::alRecibirDato));
     }
     
-    // 2. Método implementado de IReceptorExterno: Inicia el flujo de recepción de Red.
     @Override
-    public void alRecibirMensaje(String m) { 
-        if(tuberiaEntrada!=null) tuberiaEntrada.ejecutar(m); 
+    public void enviarDato(Object d) {
+        if (tuberiaSalida != null) {
+            tuberiaSalida.ejecutar(d);
+        }
+    }
+    
+    @Override
+    public void alRecibirMensaje(String m) {
+        if (tuberiaEntrada != null) {
+            tuberiaEntrada.ejecutar(m);
+        }
     }
 
-    // 3. Método implementado de ITuberiaEntrada: Fin del flujo de recepción.
-    // Pasa el objeto deserializado a la aplicación (GestorCliente).
     @Override
     public void alRecibirDato(Object dato) {
         if (receptorAplicacion != null) {
             receptorAplicacion.alRecibirDato(dato);
         }
 
-    } 
+    }
 }

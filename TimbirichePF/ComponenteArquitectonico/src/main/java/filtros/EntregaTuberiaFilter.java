@@ -1,25 +1,18 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
 package filtros;
 
-import interfaz.ITuberiaEntrada;
+import java.util.function.Consumer;
 
-/**
- *
- * @author NaderCroft
- */
-public class EntregaTuberiaFilter extends FilterBase<Object, Void>{
-    private final ITuberiaEntrada receptor; 
+public class EntregaTuberiaFilter extends FilterBase<Object, Void> {
+    
+    private final Consumer<Object> consumidor; 
 
-    public EntregaTuberiaFilter(ITuberiaEntrada r){
-        this.receptor=r;
+    public EntregaTuberiaFilter(Consumer<Object> consumidor){
+        this.consumidor = consumidor;
     } 
     
     @Override
-    public void procesar(Object i){ 
-        // Llama al método del ProcesadorPipesFiltros
-        receptor.alRecibirDato(i); 
+    public void procesar(Object entrada){ 
+        // Entrega el dato al consumidor (tu método alRecibirDato)
+        consumidor.accept(entrada); 
     }
 }
