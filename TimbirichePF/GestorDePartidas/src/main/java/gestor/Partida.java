@@ -7,8 +7,10 @@ import gestor.GestorPrincipal;
 import gestor.ManejadorCliente;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
+import java.util.Set;
 import modeloLogicoServidor.TableroModeloLogico;
 
 public class Partida {
@@ -19,6 +21,7 @@ public class Partida {
     private final List<ManejadorCliente> manejadores = Collections.synchronizedList(new ArrayList<>());
     private final List<Jugador> jugadoresConfigurados = Collections.synchronizedList(new ArrayList<>());
     private boolean partidaIniciada = false;
+    private final Set<Integer> jugadoresListos = new HashSet<>();
 
     public Partida(String codigoSala, GestorPrincipal gestor) {
         this.codigoSala = codigoSala;
@@ -130,20 +133,33 @@ public class Partida {
     }
 
     public synchronized void iniciarPartida(ManejadorCliente manejador) {
-        if (manejador.getJugador() == null || manejador.getJugador().id() != 1) {
-            manejador.enviarError("Solo el Host (Jugador 1) puede iniciar la partida.");
+        //Validar que no haya iniciado
+        if (partidaIniciada) {
             return;
         }
-        if (jugadoresConfigurados.size() < 2) {
-            manejador.enviarError("Se necesitan al menos 2 jugadores para iniciar.");
+        //Validar 2 jugadores
+        if (manejadores.size() < 2) {
+            manejador.enviarError("Faltan jugadores para iniciar (Mínimo 2).");
             return;
         }
-        partidaIniciada = true;
-        modeloLogico.iniciarTurno();
-        System.out.println("[PARTIDA " + codigoSala + "] ¡Partida iniciada por Host!");
-        distribuirDTOaTodos(new EventoPartidaIniciada());
-        distribuirEstadoATodos();
-    }
+            // registrar jugadores que le den listo
+            int idJugador = manejador.getJugador().id();
+            jugadoresListos.add(idJugador);
+            System.out.println("[PARTIDA " + codigoSala + "] Jugador " + idJugador + " está LISTO. (" + jugadoresListos.size() + "/" + manejadores.size() + ")");
+            //Comprobar que le den listo
+            if (jugadoresListos.size() == manejadores.size()) {
+                partidaIniciada = true;
+                modeloLogico.iniciarTurno();
+
+                System.out.println("[PARTIDA " + codigoSala + "] ¡Todos listos! Iniciando partida...");
+                distribuirDTOaTodos(new eventos.EventoPartidaIniciada());
+                distribuirEstadoATodos();
+
+            } else {
+
+            }
+
+        }
 
     public synchronized void reclamarLinea(ManejadorCliente manejador, AccionReclamarLinea accion) {
         Jugador jugador = manejador.getJugador();
@@ -170,18 +186,18 @@ public class Partida {
             modeloLogico.siguienteTurno();
         }
         distribuirEstadoATodos();
-        
+
         // 3. NUEVO: Verificar si el juego terminó y notificar ganador
         if (modeloLogico.isJuegoTerminado()) {
             Jugador ganador = modeloLogico.obtenerGanador();
             String mensaje = (ganador == null) ? "¡Es un empate!" : "¡Ganador: " + ganador.nombre() + "!";
-            
+
             EventoPartidaTerminada eventoFin = new EventoPartidaTerminada(
-                ganador, 
-                modeloLogico.getPuntajes(), 
-                mensaje
+                    ganador,
+                    modeloLogico.getPuntajes(),
+                    mensaje
             );
-            
+
             System.out.println("[PARTIDA " + codigoSala + "] Juego terminado. " + mensaje);
             distribuirDTOaTodos(eventoFin);
         }
@@ -229,6 +245,5 @@ public class Partida {
                 modeloLogico.isJuegoTerminado()
         );
     }
-    
-    
+
 }
