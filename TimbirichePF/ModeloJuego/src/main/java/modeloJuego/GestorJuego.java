@@ -82,6 +82,8 @@ public class GestorJuego implements IGestorJuego, ITuberiaEntrada {
         } else if (dato instanceof EventoError e) {
             notificar(o -> o.error(e.getMensaje()));
         }
+
+        System.out.println("[GestorJuego] Dato recibido y procesado: " + dato.getClass().getSimpleName());
     }
 
     /**
@@ -146,12 +148,16 @@ public class GestorJuego implements IGestorJuego, ITuberiaEntrada {
     }
 
     /**
-     * Envía la señal para comenzar la partida a la red.
+     * Envía la señal para comenzar la partida a la red. Este es el caso de uso
+     * específico modificado.
      */
     @Override
-    public void iniciarPartida() {
-        if (envio != null) {
-            envio.enviarDato(new AccionIniciarPartida());
+    public void solicitarInicioPartida() {
+        System.out.println("[GestorJuego] Solicitando inicio...");
+        if (this.envio != null) {
+            this.envio.enviarDato(new AccionIniciarPartida());
+        } else {
+            System.err.println("Error: Tubería 'envio' no conectada.");
         }
     }
 

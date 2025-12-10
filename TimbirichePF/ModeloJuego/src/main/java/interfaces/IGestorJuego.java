@@ -18,8 +18,10 @@ public interface IGestorJuego {
     void unirseAPartida(String codigo);
 
     void configurarJugador(Jugador jugador);
-
-    void iniciarPartida();
+    
+    void solicitarInicioPartida(); 
 
     void reclamarLinea(int fila, int col, boolean horizontal, Jugador jugadorLocal);
+
+
 }
