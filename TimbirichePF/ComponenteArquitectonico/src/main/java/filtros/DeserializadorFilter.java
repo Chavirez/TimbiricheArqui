@@ -3,11 +3,8 @@ package filtros;
 import com.google.gson.Gson;
 import com.google.gson.JsonSyntaxException;
 import datos.PaqueteDatos;
+// NO IMPORTAMOS NADA DE ACCIONES PARA EVITAR ERRORES
 
-/**
- * Segundo filtro en el pipeline de recepción. Entrada: PaqueteDatos Salida:
- * Object (el DTO original)
- */
 public class DeserializadorFilter extends FilterBase<PaqueteDatos, Object> {
 
     private final Gson gson;
@@ -20,6 +17,17 @@ public class DeserializadorFilter extends FilterBase<PaqueteDatos, Object> {
     @Override
     public void procesar(PaqueteDatos entrada) {
         try {
+        
+            
+            if (entrada.getTipoClase().contains("AccionIniciarPartida")) {
+                // Truco: Cargamos la clase dinámicamente solo si existe
+                Class<?> clase = Class.forName("acciones.AccionIniciarPartida");
+                Object dto = clase.getDeclaredConstructor().newInstance();
+                pasarAlSiguiente(dto);
+                return;
+            }
+
+            
             Class<?> tipoClase = Class.forName(entrada.getTipoClase());
             Object dto = gson.fromJson(entrada.getJsonDatos(), tipoClase);
 
@@ -27,9 +35,11 @@ public class DeserializadorFilter extends FilterBase<PaqueteDatos, Object> {
                 pasarAlSiguiente(dto);
             }
         } catch (ClassNotFoundException e) {
-            System.err.println("[DeserializadorFilter] Clase no encontrada: " + entrada.getTipoClase());
-        } catch (JsonSyntaxException e) {
-            System.err.println("[DeserializadorFilter] Error de sintaxis JSON al deserializar DTO: " + e.getMessage());
+            System.err.println("[DeserializadorFilter] CLASE NO ENCONTRADA: " + entrada.getTipoClase());
+            System.err.println(">>> ¡HAZ CLEAN AND BUILD EN COMPONENTE DOMINIO! <<<");
+        } catch (Exception e) {
+            System.err.println("[DeserializadorFilter] Error: " + e.getMessage());
+            e.printStackTrace();
         }
     }
 }

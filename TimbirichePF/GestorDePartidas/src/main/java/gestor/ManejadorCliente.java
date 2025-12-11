@@ -10,33 +10,36 @@ import interfaz.ITuberiaSalida;
 
 public class ManejadorCliente implements ITuberiaEntrada {
 
-    private final Socket socket; 
+    private final Socket socket;
     private final GestorPrincipal gestor;
     // Cambiar el tipo inyectado a ITuberiaSalida
-    private final ITuberiaSalida procesadorEnvio; 
-    
+    private final ITuberiaSalida procesadorEnvio;
+
     private Partida partidaActual = null;
     private Jugador jugador = null;
 
     /**
-     * Constructor con Inyección de Dependencias.
-     * Recibe la interfaz de envío ya configurada por GestorPrincipal.
+     * Constructor con Inyección de Dependencias. Recibe la interfaz de envío ya
+     * configurada por GestorPrincipal.
      */
     public ManejadorCliente(Socket socket, GestorPrincipal gestor, ITuberiaSalida procesadorEnvio) {
         this.socket = socket;
         this.gestor = gestor;
         this.procesadorEnvio = procesadorEnvio;
     }
-    
+
     public int getIdJugador() {
         return (jugador != null) ? jugador.id() : socket.getPort();
     }
+
     public Jugador getJugador() {
         return jugador;
     }
+
     public void setJugador(Jugador jugador) {
         this.jugador = jugador;
     }
+
     public void setPartidaActual(Partida partida) {
         this.partidaActual = partida;
     }
@@ -44,14 +47,15 @@ public class ManejadorCliente implements ITuberiaEntrada {
     @Override
     public void alRecibirDato(Object dato) {
         System.out.println("[MANEJADOR " + getIdJugador() + "] DTO Recibido: " + dato.getClass().getSimpleName());
-        
+
         switch (dato) {
-            case AccionCrearPartida a -> gestor.crearPartida(this);
-            case AccionUnirseAPartida a -> gestor.unirseAPartida(this, a.getCodigoSala());
+            case AccionCrearPartida a ->
+                gestor.crearPartida(this);
+            case AccionUnirseAPartida a ->
+                gestor.unirseAPartida(this, a.getCodigoSala());
             case AccionConfigurarJugador a -> {
                 if (partidaActual != null) {
-                   
-                    this.jugador = a.getJugador(); 
+                    this.jugador = a.getJugador();
                     partidaActual.configurarJugador(this, this.jugador);
                 }
             }
@@ -62,7 +66,7 @@ public class ManejadorCliente implements ITuberiaEntrada {
                     enviarError("Debe estar en una partida y configurado para reclamar líneas.");
                 }
             }
-            
+
             case AccionIniciarPartida a -> {
                 if (partidaActual != null && jugador != null) {
                     // Delegamos a la partida (que manejará la lógica de "todos listos")
@@ -71,24 +75,24 @@ public class ManejadorCliente implements ITuberiaEntrada {
                     enviarError("Debe estar en una partida y configurado para iniciar.");
                 }
             }
-            default -> System.err.println("[MANEJADOR " + getIdJugador() + "] DTO no reconocido.");
+            default ->
+                System.err.println("[MANEJADOR " + getIdJugador() + "] DTO no reconocido.");
         }
     }
-    
 
     public void enviarDTO(Object dto) {
         System.out.println("[MANEJADOR " + getIdJugador() + "] DTO Enviando: " + dto.getClass().getSimpleName());
         // Delega al componente inyectado (el bus de arquitectura)
-        procesadorEnvio.enviarDato(dto); 
+        procesadorEnvio.enviarDato(dto);
     }
 
     public void enviarError(String mensaje) {
         enviarDTO(new EventoError(mensaje));
     }
-    
+
     /**
-     * Lógica de limpieza al desconectarse. 
-     * Debe ser llamada por el hilo de I/O (ReceptorDeRed) al finalizar.
+     * Lógica de limpieza al desconectarse. Debe ser llamada por el hilo de I/O
+     * (ReceptorDeRed) al finalizar.
      */
     public void notificarDesconexion() {
         if (partidaActual != null) {
@@ -98,7 +102,8 @@ public class ManejadorCliente implements ITuberiaEntrada {
             if (!socket.isClosed()) {
                 socket.close();
             }
-        } catch (IOException e) { /* Ignorar */ }
+        } catch (IOException e) {
+            /* Ignorar */ }
         System.out.println("[MANEJADOR " + getIdJugador() + "] Tarea de limpieza completada.");
     }
 }

@@ -34,6 +34,7 @@ public class VentanaJuego extends javax.swing.JFrame implements Observador {
         this.controladorApp = controladorApp;
         initComponents();
         this.getContentPane().setBackground(new java.awt.Color(45, 40, 90));
+
         this.panelLateralReal = new PanelLateral(controladorTablero);
         this.panelLateralReal.setControladorPrincipal(controladorApp);
         controladorTablero.suscribirVentanaJuego(this);

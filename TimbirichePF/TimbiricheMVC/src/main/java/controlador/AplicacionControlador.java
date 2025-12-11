@@ -24,8 +24,9 @@ public class AplicacionControlador implements Observador {
         SwingUtilities.invokeLater(this::mostrarLobby);
     }
 
-    public void iniciarPartida() {
-        modeloApp.iniciarPartida();
+    public void votarIniciar() {
+       
+        modeloApp.votarIniciar();
     }
 
     // --- Métodos que la VISTA llamará ---
@@ -99,13 +100,13 @@ public class AplicacionControlador implements Observador {
 
     private void mostrarLobby() {
         cerrarTodasLasVentanas();
-        ventanaLobby = new VentanaLobby(this); // Asumiendo que Lobby recibe el controlador
+        ventanaLobby = new VentanaLobby(this); 
         ventanaLobby.setVisible(true);
     }
 
     private void mostrarConfiguracion() {
         cerrarTodasLasVentanas();
-        // AQUI ESTÁ EL CAMBIO: Pasamos 'this' (el controlador)
+        
         ventanaConfiguracionGrafica = new VentanaConfiguracionJugador(this);
         ventanaConfiguracionGrafica.setVisible(true);
     }
@@ -123,10 +124,9 @@ public class AplicacionControlador implements Observador {
 
         TableroControlador tableroControlador = new TableroControlador(modeloTablero, modeloApp);
 
-        // --- AQUÍ ESTABA EL ERROR ---
-        // Debes usar 'this' para pasar este mismo controlador a la ventana
+      
         VentanaJuego vJuego = new VentanaJuego(tableroControlador, this);
-        // ----------------------------
+       
 
         this.frameJuego = vJuego;
 

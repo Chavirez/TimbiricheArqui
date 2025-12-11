@@ -133,33 +133,41 @@ public class Partida {
     }
 
     public synchronized void iniciarPartida(ManejadorCliente manejador) {
-        //Validar que no haya iniciado
+        //Validar que no haya iniciado ya
         if (partidaIniciada) {
             return;
         }
-        //Validar 2 jugadores
+
+        //  Validar mínimo de 2 jugadores
         if (manejadores.size() < 2) {
             manejador.enviarError("Faltan jugadores para iniciar (Mínimo 2).");
             return;
         }
-            // registrar jugadores que le den listo
-            int idJugador = manejador.getJugador().id();
-            jugadoresListos.add(idJugador);
-            System.out.println("[PARTIDA " + codigoSala + "] Jugador " + idJugador + " está LISTO. (" + jugadoresListos.size() + "/" + manejadores.size() + ")");
-            //Comprobar que le den listo
-            if (jugadoresListos.size() == manejadores.size()) {
-                partidaIniciada = true;
-                modeloLogico.iniciarTurno();
 
-                System.out.println("[PARTIDA " + codigoSala + "] ¡Todos listos! Iniciando partida...");
-                distribuirDTOaTodos(new eventos.EventoPartidaIniciada());
-                distribuirEstadoATodos();
-
-            } else {
-
-            }
-
+        //  Validar que el jugador esté configurado 
+        if (manejador.getJugador() == null) {
+            manejador.enviarError("Debes configurar tu perfil antes de iniciar.");
+            return;
         }
+
+        //  Registrar voto de "Listo"
+        int idJugador = manejador.getJugador().id();
+        jugadoresListos.add(idJugador); // Al ser un Set, evita duplicados automáticamente
+
+        System.out.println("[PARTIDA " + codigoSala + "] Jugador " + idJugador + " está LISTO. (" + jugadoresListos.size() + "/" + manejadores.size() + ")");
+
+        // Comprobar si TODOS están listos
+        if (jugadoresListos.size() == manejadores.size()) {
+            partidaIniciada = true;
+            modeloLogico.iniciarTurno();
+
+            System.out.println("[PARTIDA " + codigoSala + "] ¡Todos listos! Iniciando partida...");
+
+            // Notificar inicio 
+            distribuirDTOaTodos(new eventos.EventoPartidaIniciada());
+            distribuirEstadoATodos();
+        }
+    }
 
     public synchronized void reclamarLinea(ManejadorCliente manejador, AccionReclamarLinea accion) {
         Jugador jugador = manejador.getJugador();
@@ -238,7 +246,7 @@ public class Partida {
                 modeloLogico.getLineasVerticales(),
                 modeloLogico.getCuadrados(),
                 modeloLogico.getJugadorActualIdx(),
-                new ArrayList<>(jugadoresConfigurados), 
+                new ArrayList<>(jugadoresConfigurados),
                 modeloLogico.getPuntajes(),
                 modeloLogico.getTotalCuadrados(),
                 modeloLogico.getCuadradosCompletados(),

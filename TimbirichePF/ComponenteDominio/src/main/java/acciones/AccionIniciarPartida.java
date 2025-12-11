@@ -7,4 +7,6 @@ import java.io.Serializable;
  * comenzar.
  */
 public class AccionIniciarPartida implements Serializable {
+
+
 }

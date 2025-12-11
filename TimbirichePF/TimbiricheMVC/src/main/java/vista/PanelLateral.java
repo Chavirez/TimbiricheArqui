@@ -1,6 +1,6 @@
 package vista;
 
-import controlador.AplicacionControlador; // CAMBIO: Usamos el controlador principal
+import controlador.AplicacionControlador;
 import controlador.TableroControlador;
 import utilidades.Recursos;
 import entidades.Jugador;
@@ -10,74 +10,73 @@ import java.util.List;
 
 public class PanelLateral extends JPanel {
 
-    // Controlador para datos del tablero (Puntajes, Turnos, Lista Jugadores)
     private final TableroControlador tableroControlador;
-
-    // Controlador para acciones globales (Iniciar partida, Salir, Cambiar vistas)
     private AplicacionControlador appControlador;
 
     private JLabel[] labelsPuntajes;
     private JPanel panelJugadores;
-    private JButton btnIniciarPartida;
+    
+    // Declaración del botón
+    private JButton btnVotarInicio;
 
     public PanelLateral(TableroControlador tableroControlador) {
         this.tableroControlador = tableroControlador;
         this.labelsPuntajes = new JLabel[0];
 
+        // Configuración básica del panel
         setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
         setPreferredSize(new Dimension(250, 600));
         setOpaque(false);
         setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
 
+        // Panel de jugadores
         panelJugadores = new JPanel();
         panelJugadores.setLayout(new BoxLayout(panelJugadores, BoxLayout.Y_AXIS));
         panelJugadores.setOpaque(false);
         add(panelJugadores);
 
+        // Espacio elástico
         add(Box.createVerticalGlue());
 
-        // --- Botón Iniciar Partida ---
-        btnIniciarPartida = new JButton("Iniciar Partida");
-        btnIniciarPartida.setAlignmentX(Component.CENTER_ALIGNMENT);
-        btnIniciarPartida.setVisible(false);
-        btnIniciarPartida.setCursor(new Cursor(Cursor.HAND_CURSOR));
+   
+        btnVotarInicio = new JButton("Estoy Listo");
+       
+        
+        btnVotarInicio.setAlignmentX(Component.CENTER_ALIGNMENT);
+        btnVotarInicio.setVisible(false); 
+        btnVotarInicio.setCursor(new Cursor(Cursor.HAND_CURSOR));
+        btnVotarInicio.setFont(new Font("Arial", Font.BOLD, 14));
+        btnVotarInicio.setBackground(new Color(34, 139, 34)); // Verde Bosque
+        btnVotarInicio.setForeground(Color.WHITE);
 
-        btnIniciarPartida.addActionListener(e -> {
-            System.out.println("Botón Iniciar presionado..."); // <--- DEBUG
-
+        // Acción del botón (Aquí tronaba antes porque el botón era null)
+        btnVotarInicio.addActionListener(e -> {
+            
             if (appControlador != null) {
-                System.out.println("Enviando orden al controlador..."); // <--- DEBUG
-                appControlador.iniciarPartida();
+                // Feedback visual
+                btnVotarInicio.setEnabled(false);
+                btnVotarInicio.setText("Esperando...");
+                // Llamada al controlador
+                appControlador.votarIniciar();
             } else {
-                System.err.println("ERROR: appControlador es NULL en PanelLateral"); // <--- IMPORTANTE
+                
             }
         });
 
-        add(btnIniciarPartida);
+        add(btnVotarInicio);
         add(Box.createRigidArea(new Dimension(0, 10)));
 
-        // --- Botón Salir ---
+        // Botón Salir
         JButton btnSalir = new JButton("Salir");
         btnSalir.setAlignmentX(Component.CENTER_ALIGNMENT);
         btnSalir.setCursor(new Cursor(Cursor.HAND_CURSOR));
         btnSalir.addActionListener(e -> {
-            if (appControlador != null) {
-                // Podrías tener un método appControlador.salirDelJuego()
-                System.exit(0);
-            } else {
-                System.exit(0);
-            }
+            System.exit(0);
         });
 
         add(btnSalir);
     }
 
-    /**
-     * Inyecta el controlador principal de la aplicación.Se llama desde
-     * VentanaJuego o AplicacionControlador al crear la vista.
-     *
-     * @param appControlador
-     */
     public void setControladorPrincipal(AplicacionControlador appControlador) {
         this.appControlador = appControlador;
     }
@@ -88,7 +87,7 @@ public class PanelLateral extends JPanel {
 
         if (jugadores == null || jugadores.isEmpty()) {
             JLabel lblEspera = new JLabel("Esperando jugadores...");
-            lblEspera.setForeground(Color.DARK_GRAY);
+            lblEspera.setForeground(Color.WHITE); // Ajustado a blanco para ver mejor
             lblEspera.setAlignmentX(Component.CENTER_ALIGNMENT);
             panelJugadores.add(lblEspera);
             this.labelsPuntajes = new JLabel[0];
@@ -129,26 +128,22 @@ public class PanelLateral extends JPanel {
         panel.add(lblNombre, BorderLayout.CENTER);
         panel.add(labelsPuntajes[index], BorderLayout.EAST);
 
-        // Hacemos el panel semitransparente o transparente según diseño
         panel.setOpaque(false);
         return panel;
     }
 
-    /**
-     * Método llamado por VentanaJuego cuando el Modelo notifica cambios.
-     */
     public void actualizarUI() {
         Jugador jugadorActualTurno = tableroControlador.getJugadorActual();
         List<Jugador> jugadores = tableroControlador.getJugadores();
         int jugadoresSize = (jugadores != null) ? jugadores.size() : 0;
 
-        // 1. Reconstruir lista si cambia la cantidad de jugadores
+        // 1. Reconstruir lista si cambia la cantidad
         if (this.labelsPuntajes.length != jugadoresSize
                 || (jugadorActualTurno == null && jugadoresSize > 0 && this.labelsPuntajes.length == 0)) {
             inicializarPanelesJugadores();
         }
 
-        // 2. Actualizar puntajes numéricos
+        // 2. Actualizar puntajes
         int[] puntajes = tableroControlador.getPuntajes();
         if (puntajes != null) {
             int limite = Math.min(puntajes.length, labelsPuntajes.length);
@@ -159,10 +154,16 @@ public class PanelLateral extends JPanel {
             }
         }
 
-        if (jugadorActualTurno == null && !tableroControlador.isJuegoTerminado() && jugadoresSize >= 1) {
-            btnIniciarPartida.setVisible(true);
+        // 3. Lógica del Botón
+        if (jugadorActualTurno == null && !tableroControlador.isJuegoTerminado() && jugadoresSize >= 2) {
+            btnVotarInicio.setVisible(true);
+
+            if (!btnVotarInicio.getText().equals("Esperando...")) {
+                btnVotarInicio.setText("Estoy Listo");
+                btnVotarInicio.setEnabled(true);
+            }
         } else {
-            btnIniciarPartida.setVisible(false);
+            btnVotarInicio.setVisible(false);
         }
 
         repaint();
