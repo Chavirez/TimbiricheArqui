@@ -24,11 +24,15 @@ public class TableroControlador extends MouseAdapter implements IGestorTablero {
         this.backend = backend;
     }
 
-    @Override
+@Override
     public void mouseClicked(MouseEvent e) {
         if (modelo.isJuegoTerminado() || modelo.getJugadorActual() == null) return;
         
-        Point puntoClic = convertirClickAPunto(e.getX(), e.getY());
+        if (!(e.getSource() instanceof TableroVista)) return;
+        TableroVista vista = (TableroVista) e.getSource();
+
+        Point puntoClic = convertirClickAPunto(e.getX(), e.getY(), vista);
+        
         if (puntoClic == null) {
             limpiarSeleccion();
             return;
@@ -43,6 +47,36 @@ public class TableroControlador extends MouseAdapter implements IGestorTablero {
             }
             limpiarSeleccion();
         }
+    }
+
+    private Point convertirClickAPunto(int mouseX, int mouseY, TableroVista vista) {
+        int tamaño = modelo.getTamaño();
+        if (tamaño == 0) return null;
+
+        double espacio = vista.getEspacioActual();
+        int inicioX = vista.getInicioX();
+        int inicioY = vista.getInicioY();
+        int radioTolerancia = JuegoConfig.RADIO_PUNTO * 2; // Margen de error para el clic
+
+        // Cálculo inverso: (Coordenada Mouse - Margen Inicial) / Espacio Dinámico
+        // Usamos Math.round para encontrar el punto más cercano
+        int col = (int) Math.round((mouseX - inicioX) / espacio);
+        int fila = (int) Math.round((mouseY - inicioY) / espacio);
+
+        // Validar que esté dentro de la matriz
+        if (fila < 0 || col < 0 || fila >= tamaño || col >= tamaño) return null;
+
+        // Validación extra opcional: Asegurar que el clic no esté demasiado lejos del punto
+        // Calcula la posición exacta en píxeles de ese punto candidato
+        int pixelX = (int) (inicioX + col * espacio);
+        int pixelY = (int) (inicioY + fila * espacio);
+        
+        // Si el clic está muy lejos del centro del punto, lo ignoramos (mejora la precisión)
+        if (Math.abs(mouseX - pixelX) > radioTolerancia || Math.abs(mouseY - pixelY) > radioTolerancia) {
+            return null;
+        }
+
+        return new Point(fila, col);
     }
 
     private void reportarIntentoLinea(Point p1, Point p2) {
@@ -61,15 +95,6 @@ public class TableroControlador extends MouseAdapter implements IGestorTablero {
     private void limpiarSeleccion() {
         primerPuntoCache = null;
         modelo.setPuntoSeleccionado(null);
-    }
-    
-    private Point convertirClickAPunto(int x, int y) {
-        int tamaño = modelo.getTamaño();
-        if (tamaño == 0) return null;
-        int fila = Math.round((float) (y - JuegoConfig.MARGEN) / JuegoConfig.ESPACIO);
-        int col = Math.round((float) (x - JuegoConfig.MARGEN) / JuegoConfig.ESPACIO);
-        if (fila < 0 || col < 0 || fila >= tamaño || col >= tamaño) return null;
-        return new Point(fila, col);
     }
 
     private boolean sonAdyacentes(Point p1, Point p2) {
