@@ -1,6 +1,7 @@
 package controlador;
 
 import entidades.Jugador;
+import eventos.EventoPartidaTerminada;
 import modelo.AplicacionModelo;
 import modelo.TableroModelo;
 import observador.Observador;
@@ -142,8 +143,35 @@ public class AplicacionControlador implements Observador {
     // ... (mostrarResultados y volverAlLobby igual que antes) ...
     private void mostrarResultados() {
         if (frameJuego != null && modeloApp.getResultadosFinales() != null) {
-            VentanaResultados vr = new VentanaResultados(frameJuego, modeloApp.getResultadosFinales(), this);
-            vr.setVisible(true);
+            EventoPartidaTerminada resultados = modeloApp.getResultadosFinales();
+
+            // OBTENEMOS EL GANADOR O MENSAJE FINAL
+            String nombreGanador = (resultados.getGanador() != null)
+                    ? resultados.getGanador().nombre()
+                    : "Empate";
+
+            String mensaje;
+            if (resultados.getGanador() != null) {
+                // Usamos el mensaje personalizado del servidor (si existe) o uno por defecto
+                String mensajeServidor = resultados.getMensaje();
+
+                // Si el servidor mandó un mensaje explícito (como "ganado por abandono")
+                if (mensajeServidor != null && !mensajeServidor.isEmpty()) {
+                    mensaje = mensajeServidor;
+                } else {
+                    // Mensaje por defecto si fue fin de juego normal
+                    mensaje = "¡Felicidades, " + nombreGanador + "! Has ganado el Timbiriche.";
+                }
+            } else {
+                // Caso de empate
+                mensaje = "¡Fin del juego! Resultado: Empate.";
+            }
+
+            // Mostrar el mensaje simple de victoria
+            JOptionPane.showMessageDialog(null, mensaje, "Fin de Partida", JOptionPane.INFORMATION_MESSAGE);
+
+            // Regresar al lobby después de mostrar el mensaje
+            volverAlLobby();
         }
     }
 

@@ -4,18 +4,18 @@ import entidades.*;
 import eventos.EventoPartidaTerminada;
 import interfaces.*;
 import observador.Observable;
-import java.awt.Color; 
+import java.awt.Color;
 
 public class AplicacionModelo extends Observable implements IObservadorJuego, IGestorTablero {
 
     public enum EstadoNavegacion {
         LOBBY,
-        PARTIDA,   
+        PARTIDA,
         RESULTADOS
     }
     private final IGestorJuego gestorRed;
     private EstadoNavegacion estadoActual = EstadoNavegacion.LOBBY;
-    private Jugador jugadorLocal; 
+    private Jugador jugadorLocal;
     private TableroModelo tableroModelo;
     private String mensajeError;
     private EventoPartidaTerminada resultadosFinales;
@@ -26,16 +26,28 @@ public class AplicacionModelo extends Observable implements IObservadorJuego, IG
     }
 
     // --- ACCIONES ---
-    public void crearPartida() { gestorRed.crearPartida(); }
-    public void unirseAPartida(String codigo) { gestorRed.unirseAPartida(codigo); }
+    public void crearPartida() {
+        gestorRed.crearPartida();
+    }
+
+    public void unirseAPartida(String codigo) {
+        gestorRed.unirseAPartida(codigo);
+    }
+
     public void configurarJugador(Jugador jugador) {
-        this.jugadorLocal = jugador; 
+        this.jugadorLocal = jugador;
         gestorRed.configurarJugador(jugador);
     }
-    public void iniciarPartida() { gestorRed.iniciarPartida(); }
+
+    public void iniciarPartida() {
+        gestorRed.iniciarPartida();
+    }
+
     @Override
     public void reclamarLinea(int f, int c, boolean h) {
-        if (jugadorLocal != null) gestorRed.reclamarLinea(f, c, h, jugadorLocal);
+        if (jugadorLocal != null) {
+            gestorRed.reclamarLinea(f, c, h, jugadorLocal);
+        }
     }
 
     public void cambiarEstado(EstadoNavegacion nuevo) {
@@ -85,7 +97,8 @@ public class AplicacionModelo extends Observable implements IObservadorJuego, IG
     @Override
     public void partidaTerminada(EventoPartidaTerminada evento) {
         this.resultadosFinales = evento;
-        cambiarEstado(EstadoNavegacion.RESULTADOS);
+        this.cambiarEstado(EstadoNavegacion.RESULTADOS);
+        notificarObservadores(); 
     }
 
     @Override
@@ -93,13 +106,29 @@ public class AplicacionModelo extends Observable implements IObservadorJuego, IG
         this.mensajeError = mensaje;
         notificarObservadores();
     }
-    
-    public void limpiarError() { this.mensajeError = null; }
+
+    public void limpiarError() {
+        this.mensajeError = null;
+    }
 
     // Getters
-    public TableroModelo getTableroModelo() { return tableroModelo; }
-    public EstadoNavegacion getEstadoActual() { return estadoActual; }
-    public Jugador getJugadorLocal() { return jugadorLocal; }
-    public EventoPartidaTerminada getResultadosFinales() { return resultadosFinales; }
-    public String getMensajeError() { return mensajeError; }
+    public TableroModelo getTableroModelo() {
+        return tableroModelo;
+    }
+
+    public EstadoNavegacion getEstadoActual() {
+        return estadoActual;
+    }
+
+    public Jugador getJugadorLocal() {
+        return jugadorLocal;
+    }
+
+    public EventoPartidaTerminada getResultadosFinales() {
+        return resultadosFinales;
+    }
+
+    public String getMensajeError() {
+        return mensajeError;
+    }
 }

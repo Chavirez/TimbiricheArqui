@@ -79,6 +79,10 @@ public class GestorJuego implements IGestorJuego, ITuberiaEntrada {
         } else if (dato instanceof EventoPartidaIniciada) {
             notificar(IObservadorJuego::partidaIniciada);
 
+        } else if (dato instanceof EventoPartidaTerminada e) { // <-- ¡NUEVO BLOQUE!
+            // Notificamos a todos los observadores que la partida ha terminado
+            notificar(o -> o.partidaTerminada(e));
+            
         } else if (dato instanceof EventoError e) {
             notificar(o -> o.error(e.getMensaje()));
         }

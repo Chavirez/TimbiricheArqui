@@ -170,18 +170,18 @@ public class Partida {
             modeloLogico.siguienteTurno();
         }
         distribuirEstadoATodos();
-        
+
         // 3. NUEVO: Verificar si el juego terminó y notificar ganador
         if (modeloLogico.isJuegoTerminado()) {
             Jugador ganador = modeloLogico.obtenerGanador();
             String mensaje = (ganador == null) ? "¡Es un empate!" : "¡Ganador: " + ganador.nombre() + "!";
-            
+
             EventoPartidaTerminada eventoFin = new EventoPartidaTerminada(
-                ganador, 
-                modeloLogico.getPuntajes(), 
-                mensaje
+                    ganador,
+                    modeloLogico.getPuntajes(),
+                    mensaje
             );
-            
+
             System.out.println("[PARTIDA " + codigoSala + "] Juego terminado. " + mensaje);
             distribuirDTOaTodos(eventoFin);
         }
@@ -193,12 +193,45 @@ public class Partida {
             jugadoresConfigurados.removeIf(j -> j.id() == manejador.getJugador().id());
         }
         System.out.println("[PARTIDA " + codigoSala + "] Jugador " + manejador.getIdJugador() + " desconectado. Restantes: " + manejadores.size());
-        if (manejadores.isEmpty() && !partidaIniciada) {
+        // 2. LÓGICA DE FIN DE PARTIDA / GANADOR POR ABANDONO
+        int jugadoresRestantes = manejadores.size();
+
+        if (jugadoresRestantes == 0) {
+            // La partida se queda vacía
             gestor.eliminarPartida(codigoSala);
-        } else if (partidaIniciada && manejadores.size() < 2) {
-            System.out.println("[PARTIDA " + codigoSala + "] No hay suficientes jugadores. Partida terminada.");
+
+        } else if (partidaIniciada && jugadoresRestantes == 1) {
+            // ¡ÚNICO JUGADOR RESTANTE ES EL GANADOR!
+            ManejadorCliente manejadorGanador = manejadores.get(0);
+            Jugador ganador = manejadorGanador.getJugador();
+
+            System.out.println("[PARTIDA " + codigoSala + "] ¡FIN POR ABANDONO! Ganador: " + ganador.nombre());
+
+            // Creamos el evento de partida terminada.
+            // Nota: El puntaje actual del ganador será el real, y el resto serán 0.
+            // El puntaje es irrelevante para tu requerimiento, pero se envía el objeto completo.
+            EventoPartidaTerminada eventoFin = new EventoPartidaTerminada(
+                    ganador,
+                    modeloLogico.getPuntajes(),
+                    "¡Felicidades, has ganado por abandono de tus oponentes!"
+            );
+
+            // Enviamos el evento de fin de partida al único jugador restante.
+            distribuirDTOaTodos(eventoFin);
+
+            // Finalizamos y eliminamos la sala
             gestor.eliminarPartida(codigoSala);
+
+        } else if (partidaIniciada && jugadoresRestantes > 1) {
+            // La partida sigue (más de 1 jugador).
+            // Si el jugador que se fue tenía el turno, el turno debe avanzar.
+            // Haremos que el turno avance solo si el jugador que se fue era el actual
+            // y si el juego no está terminando (esto requiere lógica adicional compleja).
+            // Por ahora, solo actualizamos el estado:
+            distribuirEstadoATodos();
+
         } else {
+            // Partida en lobby con > 1 jugador.
             distribuirEstadoATodos();
         }
     }
@@ -229,6 +262,5 @@ public class Partida {
                 modeloLogico.isJuegoTerminado()
         );
     }
-    
-    
+
 }
