@@ -154,25 +154,20 @@ public class GestorJuego implements IGestorJuego, ITuberiaEntrada {
     @Override
     public void solicitarInicioPartida() {
         try {
-           
 
-           
             acciones.AccionIniciarPartida accion = new acciones.AccionIniciarPartida();
-            
 
             if (this.envio != null) {
                 this.envio.enviarDato(accion);
-            
+
             } else {
-               
+
             }
 
         } catch (Throwable t) {
-     
-          
+
             t.printStackTrace();
 
-        
             javax.swing.JOptionPane.showMessageDialog(null,
                     "Error interno al iniciar: " + t.getClass().getSimpleName(),
                     "Error Cliente",
