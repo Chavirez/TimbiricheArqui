@@ -8,7 +8,6 @@ import java.net.Socket;
 import acciones.*;
 import interfaz.ITuberiaSalida;
 
-
 public class ManejadorCliente implements ITuberiaEntrada {
 
     private final Socket socket; 
@@ -51,8 +50,7 @@ public class ManejadorCliente implements ITuberiaEntrada {
             case AccionUnirseAPartida a -> gestor.unirseAPartida(this, a.getCodigoSala());
             case AccionConfigurarJugador a -> {
                 if (partidaActual != null) {
-                    // Nota: Si quieres mantener el ID del cliente o asignarle uno nuevo, 
-                    // deberías crear el Jugador en el servidor antes de este punto
+                   
                     this.jugador = a.getJugador(); 
                     partidaActual.configurarJugador(this, this.jugador);
                 }
@@ -64,8 +62,10 @@ public class ManejadorCliente implements ITuberiaEntrada {
                     enviarError("Debe estar en una partida y configurado para reclamar líneas.");
                 }
             }
+            
             case AccionIniciarPartida a -> {
                 if (partidaActual != null && jugador != null) {
+                    // Delegamos a la partida (que manejará la lógica de "todos listos")
                     partidaActual.iniciarPartida(this);
                 } else {
                     enviarError("Debe estar en una partida y configurado para iniciar.");
@@ -75,7 +75,6 @@ public class ManejadorCliente implements ITuberiaEntrada {
         }
     }
     
-
 
     public void enviarDTO(Object dto) {
         System.out.println("[MANEJADOR " + getIdJugador() + "] DTO Enviando: " + dto.getClass().getSimpleName());

@@ -238,7 +238,7 @@ public class Partida {
                 modeloLogico.getLineasVerticales(),
                 modeloLogico.getCuadrados(),
                 modeloLogico.getJugadorActualIdx(),
-                new ArrayList<>(jugadoresConfigurados), // Esta lista ahora se poblará correctamente
+                new ArrayList<>(jugadoresConfigurados), 
                 modeloLogico.getPuntajes(),
                 modeloLogico.getTotalCuadrados(),
                 modeloLogico.getCuadradosCompletados(),

@@ -149,7 +149,7 @@ public class GestorJuego implements IGestorJuego, ITuberiaEntrada {
 
     /**
      * Envía la señal para comenzar la partida a la red. Este es el caso de uso
-     * específico modificado.
+     * 
      */
     @Override
     public void solicitarInicioPartida() {
