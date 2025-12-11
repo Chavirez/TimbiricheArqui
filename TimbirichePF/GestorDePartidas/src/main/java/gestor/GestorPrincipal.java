@@ -14,11 +14,11 @@ public class GestorPrincipal {
         System.out.println("[GESTOR] Gestor de partidas listo.");
     }
 
-    public synchronized void crearPartida(ManejadorCliente host) {
+    public synchronized void crearPartida(ManejadorCliente host, int tamanio) {
         String codigoSala = String.format("S%03d", (partidasActivas.size() + 1));
         System.out.println("[GESTOR] Cliente " + host.getIdJugador() + " creando partida: " + codigoSala);
         
-        Partida nuevaPartida = new Partida(codigoSala, this);
+        Partida nuevaPartida = new Partida(codigoSala, this, tamanio);
         partidasActivas.put(codigoSala, nuevaPartida);
         
         unirseAPartida(host, codigoSala);

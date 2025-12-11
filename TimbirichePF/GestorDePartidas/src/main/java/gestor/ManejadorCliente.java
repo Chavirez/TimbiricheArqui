@@ -13,16 +13,12 @@ public class ManejadorCliente implements ITuberiaEntrada {
 
     private final Socket socket; 
     private final GestorPrincipal gestor;
-    // Cambiar el tipo inyectado a ITuberiaSalida
+    
     private final ITuberiaSalida procesadorEnvio; 
     
     private Partida partidaActual = null;
     private Jugador jugador = null;
-
-    /**
-     * Constructor con Inyección de Dependencias.
-     * Recibe la interfaz de envío ya configurada por GestorPrincipal.
-     */
+    
     public ManejadorCliente(Socket socket, GestorPrincipal gestor, ITuberiaSalida procesadorEnvio) {
         this.socket = socket;
         this.gestor = gestor;
@@ -47,7 +43,7 @@ public class ManejadorCliente implements ITuberiaEntrada {
         System.out.println("[MANEJADOR " + getIdJugador() + "] DTO Recibido: " + dato.getClass().getSimpleName());
         
         switch (dato) {
-            case AccionCrearPartida a -> gestor.crearPartida(this);
+            case AccionCrearPartida a -> gestor.crearPartida(this, a.getTamanio());
             case AccionUnirseAPartida a -> gestor.unirseAPartida(this, a.getCodigoSala());
             case AccionConfigurarJugador a -> {
                 if (partidaActual != null) {

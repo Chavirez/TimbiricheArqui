@@ -114,9 +114,9 @@ public class GestorJuego implements IGestorJuego, ITuberiaEntrada {
      * Envía una solicitud a la red para crear una nueva partida.
      */
     @Override
-    public void crearPartida() {
+    public void crearPartida(int tamanio) {
         if (envio != null) {
-            envio.enviarDato(new AccionCrearPartida());
+            envio.enviarDato(new AccionCrearPartida(tamanio));
         }
     }
 

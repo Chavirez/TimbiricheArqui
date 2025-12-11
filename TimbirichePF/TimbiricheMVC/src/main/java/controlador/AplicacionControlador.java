@@ -29,9 +29,9 @@ public class AplicacionControlador implements Observador {
     }
 
     // --- Métodos que la VISTA llamará ---
-    public void crearPartida() {
+    public void crearPartida(int tamanio) {
         configuracionPendiente = true;
-        modeloApp.crearPartida();
+        modeloApp.crearPartida(tamanio);
     }
 
     public void unirseAPartida(String codigo) {

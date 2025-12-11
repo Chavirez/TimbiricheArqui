@@ -26,7 +26,7 @@ public class AplicacionModelo extends Observable implements IObservadorJuego, IG
     }
 
     // --- ACCIONES ---
-    public void crearPartida() { gestorRed.crearPartida(); }
+    public void crearPartida(int tamanio) { gestorRed.crearPartida(tamanio); }
     public void unirseAPartida(String codigo) { gestorRed.unirseAPartida(codigo); }
     public void configurarJugador(Jugador jugador) {
         this.jugadorLocal = jugador; 

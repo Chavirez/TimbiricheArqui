@@ -10,4 +10,14 @@ package acciones;
  */
 public class AccionCrearPartida {
     
+    private int tamanio;
+    
+    public AccionCrearPartida(int tamanio) {
+        this.tamanio = tamanio;
+    }
+
+    public int getTamanio() {
+        return tamanio;
+    }
+    
 }

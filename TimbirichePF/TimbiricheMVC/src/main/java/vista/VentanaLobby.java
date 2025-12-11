@@ -43,6 +43,7 @@ public class VentanaLobby extends javax.swing.JFrame {
         lblUnirse = new javax.swing.JLabel();
         lblCerrar = new javax.swing.JLabel();
         lblFondo = new javax.swing.JLabel();
+        boxTamanios = new javax.swing.JComboBox<>();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
@@ -69,17 +70,23 @@ public class VentanaLobby extends javax.swing.JFrame {
 
         lblFondo.setIcon(new javax.swing.ImageIcon(getClass().getResource("/menus/Inicio.png"))); // NOI18N
 
+        boxTamanios.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "10", "20", "30" }));
+
         panelPrincipal.setLayer(fldCodigo, javax.swing.JLayeredPane.DEFAULT_LAYER);
         panelPrincipal.setLayer(lblCrear, javax.swing.JLayeredPane.DEFAULT_LAYER);
         panelPrincipal.setLayer(lblUnirse, javax.swing.JLayeredPane.DEFAULT_LAYER);
         panelPrincipal.setLayer(lblCerrar, javax.swing.JLayeredPane.DEFAULT_LAYER);
         panelPrincipal.setLayer(lblFondo, javax.swing.JLayeredPane.DEFAULT_LAYER);
+        panelPrincipal.setLayer(boxTamanios, javax.swing.JLayeredPane.DEFAULT_LAYER);
 
         javax.swing.GroupLayout panelPrincipalLayout = new javax.swing.GroupLayout(panelPrincipal);
         panelPrincipal.setLayout(panelPrincipalLayout);
         panelPrincipalLayout.setHorizontalGroup(
             panelPrincipalLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 1000, Short.MAX_VALUE)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, panelPrincipalLayout.createSequentialGroup()
+                .addContainerGap(665, Short.MAX_VALUE)
+                .addComponent(boxTamanios, javax.swing.GroupLayout.PREFERRED_SIZE, 148, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(187, 187, 187))
             .addGroup(panelPrincipalLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                 .addGroup(panelPrincipalLayout.createSequentialGroup()
                     .addGap(0, 0, Short.MAX_VALUE)
@@ -108,7 +115,10 @@ public class VentanaLobby extends javax.swing.JFrame {
         );
         panelPrincipalLayout.setVerticalGroup(
             panelPrincipalLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 1000, Short.MAX_VALUE)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, panelPrincipalLayout.createSequentialGroup()
+                .addContainerGap(850, Short.MAX_VALUE)
+                .addComponent(boxTamanios, javax.swing.GroupLayout.PREFERRED_SIZE, 66, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(84, 84, 84))
             .addGroup(panelPrincipalLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                 .addGroup(panelPrincipalLayout.createSequentialGroup()
                     .addGap(0, 0, Short.MAX_VALUE)
@@ -172,8 +182,9 @@ public class VentanaLobby extends javax.swing.JFrame {
 
     private void lblCrearMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_lblCrearMouseClicked
     
+        int tamanio = (boxTamanios.getSelectedIndex()+1)*10;
         if (controladorApp != null) {
-            controladorApp.crearPartida();
+            controladorApp.crearPartida(tamanio);
         }
         
     }//GEN-LAST:event_lblCrearMouseClicked
@@ -225,6 +236,7 @@ public class VentanaLobby extends javax.swing.JFrame {
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JComboBox<String> boxTamanios;
     private javax.swing.JTextField fldCodigo;
     private javax.swing.JLabel lblCerrar;
     private javax.swing.JLabel lblCrear;

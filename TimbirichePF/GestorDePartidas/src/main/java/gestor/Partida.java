@@ -20,11 +20,11 @@ public class Partida {
     private final List<Jugador> jugadoresConfigurados = Collections.synchronizedList(new ArrayList<>());
     private boolean partidaIniciada = false;
 
-    public Partida(String codigoSala, GestorPrincipal gestor) {
+    public Partida(String codigoSala, GestorPrincipal gestor, int tamanio) {
         this.codigoSala = codigoSala;
         this.gestor = gestor;
         this.modeloLogico = new TableroModeloLogico(
-                JuegoConfig.TAMANIO_TABLERO,
+                tamanio,
                 jugadoresConfigurados
         );
         System.out.println("[PARTIDA " + codigoSala + "] Creada.");

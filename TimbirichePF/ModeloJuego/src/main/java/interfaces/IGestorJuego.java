@@ -13,7 +13,7 @@ public interface IGestorJuego {
 
     void registrarObservador(IObservadorJuego observador);
 
-    void crearPartida();
+    void crearPartida(int tamaino);
 
     void unirseAPartida(String codigo);
 
