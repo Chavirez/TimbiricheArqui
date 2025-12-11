@@ -36,6 +36,7 @@ public class EnsambladorPrincipal {
                 JOptionPane.showMessageDialog(null, "Error fatal al iniciar: " + e.getMessage());
             }
         });
+        
     }
 
     public void iniciar() throws Exception {
