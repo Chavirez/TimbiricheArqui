@@ -4,6 +4,7 @@
  */
 package vista;
 
+import modelo.ConfiguracionJugador;
 import controlador.AplicacionControlador;
 import entidades.Jugador;
 import java.awt.Color;
@@ -15,13 +16,14 @@ import java.util.List;
 import javax.swing.ImageIcon;
 import javax.swing.JColorChooser;
 import javax.swing.JOptionPane;
+import observador.Observador;
 import utilidades.Recursos;
 
 /**
  *
  * @author santi
  */
-public class VentanaConfiguracionJugador extends javax.swing.JFrame {
+public class VentanaConfiguracionJugador extends javax.swing.JFrame implements Observador{
 
     private ConfiguracionJugador config;
     // Referencia al controlador concreto
@@ -363,4 +365,9 @@ public class VentanaConfiguracionJugador extends javax.swing.JFrame {
     private javax.swing.JPanel panelColor;
     private javax.swing.JLayeredPane panelPrincipal;
     // End of variables declaration//GEN-END:variables
+
+    @Override
+    public void actualizar() {
+        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+    }
 }

@@ -4,44 +4,71 @@ import entidades.*;
 import eventos.EventoPartidaTerminada;
 import interfaces.*;
 import observador.Observable;
-import java.awt.Color; 
+import java.awt.Color;
 
 public class AplicacionModelo extends Observable implements IObservadorJuego, IGestorTablero {
 
     public enum EstadoNavegacion {
         LOBBY,
-        PARTIDA,   
+        PARTIDA,
         RESULTADOS
     }
     private final IGestorJuego gestorRed;
     private EstadoNavegacion estadoActual = EstadoNavegacion.LOBBY;
-    private Jugador jugadorLocal; 
+    private Jugador jugadorLocal;
     private TableroModelo tableroModelo;
     private String mensajeError;
     private EventoPartidaTerminada resultadosFinales;
+
+    // Usamos Runnable como un callback simple para el Controlador
+    private Runnable controladorCallback;
 
     public AplicacionModelo(IGestorJuego gestorRed) {
         this.gestorRed = gestorRed;
         this.gestorRed.registrarObservador(this);
     }
 
-    // --- ACCIONES ---
-    public void crearPartida() { gestorRed.crearPartida(); }
-    public void unirseAPartida(String codigo) { gestorRed.unirseAPartida(codigo); }
-    public void configurarJugador(Jugador jugador) {
-        this.jugadorLocal = jugador; 
-        gestorRed.configurarJugador(jugador);
+    public void registrarControladorCallback(Runnable callback) {
+        this.controladorCallback = callback;
     }
-    public void iniciarPartida() { gestorRed.iniciarPartida(); }
+
+    // --- ACCIONES ---
+    public void crearPartida() {
+        gestorRed.crearPartida();
+    }
+
+    public void unirseAPartida(String codigo) {
+        gestorRed.unirseAPartida(codigo);
+    }
+
+    public void configurarJugador(Jugador jugador) {
+        this.jugadorLocal = jugador;
+        gestorRed.configurarJugador(jugador);
+        // Notificación al Controlador
+        if (controladorCallback != null) {
+            controladorCallback.run();
+        }
+    }
+
+    public void iniciarPartida() {
+        gestorRed.iniciarPartida();
+    }
+
     @Override
     public void reclamarLinea(int f, int c, boolean h) {
-        if (jugadorLocal != null) gestorRed.reclamarLinea(f, c, h, jugadorLocal);
+        if (jugadorLocal != null) {
+            gestorRed.reclamarLinea(f, c, h, jugadorLocal);
+        }
     }
 
     public void cambiarEstado(EstadoNavegacion nuevo) {
         if (this.estadoActual != nuevo) {
             this.estadoActual = nuevo;
-            notificarObservadores();
+            notificarObservadores(); // Notifica a las Vistas suscritas (TableroVista, VentanaJuego)
+            // Notificación específica al Controlador
+            if (controladorCallback != null) {
+                controladorCallback.run();
+            }
         }
     }
 
@@ -63,7 +90,10 @@ public class AplicacionModelo extends Observable implements IObservadorJuego, IG
             this.tableroModelo.actualizarEstado(nuevoEstado);
         }
         sincronizarJugadorLocal(nuevoEstado);
-        notificarObservadores();
+        // Notificamos al Controlador para que maneje la posible transición de vista (ej. fin del juego)
+        if (controladorCallback != null) {
+            controladorCallback.run();
+        }
     }
 
     private void sincronizarJugadorLocal(EstadoPartidaDTO estado) {
@@ -79,7 +109,10 @@ public class AplicacionModelo extends Observable implements IObservadorJuego, IG
 
     @Override
     public void partidaIniciada() {
-        notificarObservadores();
+        // La gestión de la vista se maneja en el callback del controlador
+        if (controladorCallback != null) {
+            controladorCallback.run();
+        }
     }
 
     @Override
@@ -91,15 +124,34 @@ public class AplicacionModelo extends Observable implements IObservadorJuego, IG
     @Override
     public void error(String mensaje) {
         this.mensajeError = mensaje;
-        notificarObservadores();
+        // Notificamos al Controlador para que muestre el error y maneje la vista
+        if (controladorCallback != null) {
+            controladorCallback.run();
+        }
     }
-    
-    public void limpiarError() { this.mensajeError = null; }
+
+    public void limpiarError() {
+        this.mensajeError = null;
+    }
 
     // Getters
-    public TableroModelo getTableroModelo() { return tableroModelo; }
-    public EstadoNavegacion getEstadoActual() { return estadoActual; }
-    public Jugador getJugadorLocal() { return jugadorLocal; }
-    public EventoPartidaTerminada getResultadosFinales() { return resultadosFinales; }
-    public String getMensajeError() { return mensajeError; }
+    public TableroModelo getTableroModelo() {
+        return tableroModelo;
+    }
+
+    public EstadoNavegacion getEstadoActual() {
+        return estadoActual;
+    }
+
+    public Jugador getJugadorLocal() {
+        return jugadorLocal;
+    }
+
+    public EventoPartidaTerminada getResultadosFinales() {
+        return resultadosFinales;
+    }
+
+    public String getMensajeError() {
+        return mensajeError;
+    }
 }

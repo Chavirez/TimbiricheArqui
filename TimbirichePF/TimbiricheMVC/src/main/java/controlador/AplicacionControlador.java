@@ -3,11 +3,12 @@ package controlador;
 import entidades.Jugador;
 import modelo.AplicacionModelo;
 import modelo.TableroModelo;
-import observador.Observador;
 import vista.*;
 import javax.swing.*;
 
-public class AplicacionControlador implements Observador {
+// AplicacionControlador ya NO implementa Observador
+
+public class AplicacionControlador {
 
     private final AplicacionModelo modeloApp;
     private VentanaLobby ventanaLobby;
@@ -17,7 +18,14 @@ public class AplicacionControlador implements Observador {
 
     public AplicacionControlador(AplicacionModelo modeloApp) {
         this.modeloApp = modeloApp;
-        this.modeloApp.agregarObservador(this);
+        
+        // Registrar un callback (Runnable) para que el Modelo nos notifique
+        Runnable callback = () -> {
+            // Ejecutar el manejo de estado en el hilo de la interfaz gráfica
+            SwingUtilities.invokeLater(this::manejarCambioEstado);
+        };
+        
+        modeloApp.registrarControladorCallback(callback);
     }
 
     public void iniciarAplicacion() {
@@ -43,14 +51,7 @@ public class AplicacionControlador implements Observador {
     public void enviarConfiguracionJugador(Jugador jugador) {
         modeloApp.configurarJugador(jugador);
         configuracionPendiente = false;
-        // Forzamos actualización para verificar si entramos al juego
-        manejarCambioEstado();
-    }
-
-    // --- Manejo de Observador ---
-    @Override
-    public void actualizar() {
-        SwingUtilities.invokeLater(this::manejarCambioEstado);
+        // La notificación se gestiona mediante el callback registrado en el constructor.
     }
 
     private void manejarCambioEstado() {
@@ -105,7 +106,7 @@ public class AplicacionControlador implements Observador {
 
     private void mostrarConfiguracion() {
         cerrarTodasLasVentanas();
-        // AQUI ESTÁ EL CAMBIO: Pasamos 'this' (el controlador)
+        // Pasamos 'this' (el controlador)
         ventanaConfiguracionGrafica = new VentanaConfiguracionJugador(this);
         ventanaConfiguracionGrafica.setVisible(true);
     }
@@ -123,10 +124,8 @@ public class AplicacionControlador implements Observador {
 
         TableroControlador tableroControlador = new TableroControlador(modeloTablero, modeloApp);
 
-        // --- AQUÍ ESTABA EL ERROR ---
-        // Debes usar 'this' para pasar este mismo controlador a la ventana
+        // Pasamos este mismo controlador a la ventana
         VentanaJuego vJuego = new VentanaJuego(tableroControlador, this);
-        // ----------------------------
 
         this.frameJuego = vJuego;
 
@@ -139,7 +138,6 @@ public class AplicacionControlador implements Observador {
         frameJuego.setVisible(true);
     }
 
-    // ... (mostrarResultados y volverAlLobby igual que antes) ...
     private void mostrarResultados() {
         if (frameJuego != null && modeloApp.getResultadosFinales() != null) {
             VentanaResultados vr = new VentanaResultados(frameJuego, modeloApp.getResultadosFinales(), this);
@@ -149,6 +147,6 @@ public class AplicacionControlador implements Observador {
 
     public void volverAlLobby() {
         modeloApp.cambiarEstado(AplicacionModelo.EstadoNavegacion.LOBBY);
-        mostrarLobby();
+        // La llamada a mostrarLobby() la hace el callback del controlador al actualizarse.
     }
 }
